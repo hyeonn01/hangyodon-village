@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bounce Ball Game</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="score">SCORE: 0</div>
+
+    <div id="info-btn">?</div>
+
+    <div id="modal-overlay" class="hidden">
+      <div id="modal-content">
+        <h2>게임 방법</h2>
+        <p class="main-desc">구름을 무사히 건너<br>교동이를 집까지 데려다주세요.</p>
+        
+        <div class="info-item">
+          <div class="icon cloud-icon"></div>
+          <p><strong>먹구름:</strong> 한 번 밟으면 사라집니다.</p>
+        </div>
+        <div class="info-item">
+          <div class="icon item-icon"></div>
+          <p><strong>새우:</strong> 보너스 점수를 얻습니다!</p>
+        </div>
+        <button id="close-btn">확인</button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

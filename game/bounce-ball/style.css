@@ -1,0 +1,104 @@
+/* 모바일 화면 고정 및 밀림 방지 */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  touch-action: none;
+  background: #222;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Gowun Dodum', sans-serif;
+}
+
+#game-container { 
+  position: relative; 
+  width: 100%; 
+  height: 100%; 
+}
+
+canvas { 
+  display: block; 
+  /* 고화질 렌더링을 위한 설정 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated; /* 저해상도 리소스일 경우 대비 */
+  width: 100%;
+  height: 100%;
+}
+
+#score {
+  position: absolute; top: 15px; left: 15px;
+  color: #1bb8f7; font-size: 28px; font-weight: bold;
+  z-index: 10;
+}
+
+#info-btn {
+  position: absolute; top: 15px; right: 15px;
+  width: 40px; height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%; display: flex;
+  justify-content: center; align-items: center;
+  font-weight: bold; font-size: 20px; cursor: pointer;
+  z-index: 100; box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* 팝업창 스타일 */
+#modal-overlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 200;
+}
+#modal-overlay.hidden { display: none; }
+
+#modal-content {
+  background: white; padding: 30px;
+  border-radius: 25px;
+  width: 90%; max-width: 450px;
+  text-align: center;
+  word-break: keep-all;
+}
+
+#modal-content h2 { font-size: 1.5rem; margin-bottom: 10px; color: #333; }
+
+.main-desc {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+
+.info-item {
+  display: flex; align-items: center;
+  margin-bottom: 15px; text-align: left;
+}
+
+.info-item p {
+  font-size: 1.05rem; color: #333; margin: 0;
+}
+
+.icon {
+  width: 40px; height: 40px; margin-right: 15px;
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+}
+.cloud-icon { background-image: url('images/cloud.png'); filter: brightness(40%); }
+.item-icon { background-image: url('images/item.png'); }
+
+#close-btn {
+  margin-top: 15px; padding: 12px 50px;
+  background: #1bb8f7; color: white;
+  border: none; border-radius: 15px;
+  font-weight: bold; font-size: 1.1rem;
+  font-family: 'Gowun Dodum'; cursor: pointer;
+}

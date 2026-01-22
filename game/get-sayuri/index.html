@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>사유리 구하기!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <div id="score">SCORE: 0</div>
+    <div id="info-btn">?</div>
+
+    <div id="nickname-overlay" class="overlay hidden">
+      <div id="modal-content">
+        <h2 style="color: #2c3e50; margin-bottom: 10px;">닉네임 설정</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">최초 1회 닉네임을 설정해주세요.</p>
+        <input type="text" id="nickname-input" placeholder="최대 8글자" maxlength="8">
+        <button id="save-nickname-btn" style="margin-top: 15px;">확인</button>
+      </div>
+    </div>
+
+    <div id="modal-overlay" class="overlay hidden">
+      <div id="modal-content">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">게임 방법</h2>
+        <div class="info-box">
+          <p style="margin: 0; line-height: 2.2; font-size: 1.1rem; color: #444; text-align: center;">
+            하늘에서 떨어지는<br>
+            <img src="images/sayuri.png" width="30" style="vertical-align: middle; margin: 0 2px;">
+            <strong>사유리</strong>와
+            <img src="images/octopus.png" width="25" style="vertical-align: middle; margin: 0 2px;">
+            <strong>문어</strong>를<br>
+            잘 구분하여 받아주세요
+          </p>
+          <p style="margin-top: 15px; font-size: 1rem; color: #666; text-align: center;">
+            문어를 받을 경우 <span style="color: #e74c3c; font-weight: bold;">먹물</span>을 맞게 됩니다!
+          </p>
+        </div>
+        <button id="close-btn">준비됐어요!</button>
+      </div>
+    </div>
+
+    <div id="start-overlay" class="overlay hidden">
+      <div class="start-content">
+        <div id="start-title">친구 구하기 !</div>
+        <p class="start-subtext">화면을 클릭하면 시작합니다</p>
+      </div>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden">
+      <div id="gameover-content">
+        <div class="sad-emoticon" style="margin-bottom: 10px;">
+          <img src="images/sad.png" alt="sad" width="80">
+        </div>
+        <h2 class="gameover-title">GAME OVER</h2>
+        <div class="score-card">
+          <div class="score-item">
+            <span class="label">현재 점수</span>
+            <span id="final-score" class="value">0</span>
+          </div>
+          <div class="divider"></div>
+          <div class="score-item">
+            <span class="label">최고 점수</span>
+            <span id="best-score" class="value">0</span>
+          </div>
+        </div>
+        <div id="ranking-box">
+          <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">🏆 실시간 TOP 5</h3>
+          <div id="ranking-list">점수 기록 중...</div>
+        </div>
+        <button id="restart-btn">다시 시작하기</button>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

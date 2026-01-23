@@ -114,7 +114,6 @@
         /* --- 메인 및 푸터 --- */
         .game-section { flex: 1 0 auto; padding: 20px 0; }
 
-        /* 기본 아이콘 크기 */
         .game-icon { 
             width: 50%; 
             height: auto; 
@@ -123,7 +122,6 @@
             object-fit: contain;
         }
 
-        /* 사유리 구하기 이미지 크기 수정 (일방적으로 커보이지 않게 조정) */
         .large-icon {
             width: 52% !important; 
             max-height: 90px !important;
@@ -231,8 +229,13 @@
                         <p>사유리를 받아줘!</p>
                     </div>
                 </div>
-                <div class="game-entry locked">
-                    <div class="game-card"><div class="lock-icon">🔒</div><h2>준비 중</h2><p>Coming Soon</p></div>
+                <div class="game-entry" onclick="location.href='./game/card-match/index.html'">
+                    <div class="game-card">
+                        <div class="game-badge" style="background: #A0E7E5;">NEW</div>
+                        <img src="card-match.png" alt="카드맞추기" class="game-icon">
+                        <h2>카드 맞추기</h2>
+                        <p>똑같은 친구들 찾기</p>
+                    </div>
                 </div>
                 <div class="game-entry locked">
                     <div class="game-card"><div class="lock-icon">🔒</div><h2>준비 중</h2><p>Coming Soon</p></div>

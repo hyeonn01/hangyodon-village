@@ -228,7 +228,6 @@ function update(timestamp) {
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
   if (timestamp - lastSpawnTime > Math.max(300, 500 - (score/10))) {
-    // 문어 생성 확률을 15%에서 8%로 감소
     const isOctopus = Math.random() < 0.08; 
     const itemWidth = isOctopus ? 50 : 80;
     let newX;
@@ -256,12 +255,13 @@ function update(timestamp) {
     const it = items[i];
     it.y += it.speed * timeFactor;
     
-    const collisionPadding = 20;
-    const hitAreaHeight = 35;
+    // 판정 범위 수정: 좌우 여백을 넓혀 좁게 만들고, 높이 판정도 더 정밀하게 조정
+    const collisionPadding = 45; // 좌우 판정 축소 (값이 클수록 좁아짐)
+    const hitAreaHeight = 25;    // 상하 판정 높이 축소
 
     if (
-      it.y + it.height > player.y && 
-      it.y + it.height < player.y + hitAreaHeight &&
+      it.y + it.height > player.y + 10 && // 캐릭터 머리 살짝 아래부터 판정 시작
+      it.y + it.height < player.y + 10 + hitAreaHeight &&
       it.x + it.width > player.x + collisionPadding && 
       it.x < player.x + player.width - collisionPadding
     ) {
@@ -270,7 +270,7 @@ function update(timestamp) {
       } else { 
         score += 10;
         scorePopups.push({
-          x: player.x + player.width,
+          x: player.x + player.width - 20,
           y: player.y + 20,
           life: 60
         });
@@ -304,7 +304,7 @@ function update(timestamp) {
   if (inkEffectTimer > 0) {
     ctx.save(); 
     ctx.globalAlpha = Math.min(0.95, inkEffectTimer / 40);
-    const side = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+    const side = window.innerWidth * 0.6;
     const drawX = (window.innerWidth - side) / 2;
     const drawY = (window.innerHeight - side) / 2;
     ctx.drawImage(inkImg, drawX, drawY, side, side);

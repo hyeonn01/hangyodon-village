@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const startOverlay = document.getElementById("start-overlay");
     const clearOverlay = document.getElementById("clear-overlay");
     const gameOverModal = document.getElementById("gameover-overlay");
+    const countdownOverlay = document.getElementById("countdown-overlay");
+    const countdownText = document.getElementById("countdown-text");
 
     let currentLevel = 1;
     let totalTime = 0;
@@ -15,21 +17,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let flippedCards = [];
     let matchedPairs = 0;
-    let canFlip = true;
+    let canFlip = false; 
     let userNickname = localStorage.getItem("sayuri_nickname");
     let hasSeenGuide = sessionStorage.getItem("sayuri_guide_seen");
 
+    // 난이도 조정을 위해 시간을 단축했습니다.
     const levelSettings = [
-        { rows: 2, cols: 2, pairs: 2, time: 10 },
-        { rows: 2, cols: 3, pairs: 3, time: 15 },
-        { rows: 2, cols: 4, pairs: 4, time: 20 },
-        { rows: 3, cols: 4, pairs: 6, time: 30 },
-        { rows: 4, cols: 4, pairs: 8, time: 40 },
-        { rows: 4, cols: 5, pairs: 10, time: 50 },
-        { rows: 4, cols: 6, pairs: 12, time: 60 },
-        { rows: 5, cols: 6, pairs: 15, time: 80 },
-        { rows: 6, cols: 6, pairs: 18, time: 100 },
-        { rows: 6, cols: 6, pairs: 18, time: 80 }
+        { rows: 2, cols: 2, pairs: 2, time: 6 },   // 10 -> 6
+        { rows: 2, cols: 3, pairs: 3, time: 10 },  // 15 -> 10
+        { rows: 2, cols: 4, pairs: 4, time: 14 },  // 20 -> 14
+        { rows: 3, cols: 4, pairs: 6, time: 22 },  // 30 -> 22
+        { rows: 4, cols: 4, pairs: 8, time: 30 },  // 40 -> 30
+        { rows: 4, cols: 5, pairs: 10, time: 38 }, // 50 -> 38
+        { rows: 4, cols: 6, pairs: 12, time: 48 }, // 60 -> 48
+        { rows: 5, cols: 6, pairs: 15, time: 65 }, // 80 -> 65
+        { rows: 6, cols: 6, pairs: 18, time: 80 }, // 100 -> 80
+        { rows: 6, cols: 6, pairs: 18, time: 60 }  // 80 -> 60 (최종 보스 단계)
     ];
 
     const imagePaths = Array.from({ length: 18 }, (_, i) => `images/card${i + 1}.png`);
@@ -72,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const setting = levelSettings[currentLevel - 1];
         matchedPairs = 0;
         flippedCards = [];
-        canFlip = true;
+        canFlip = false; 
         totalTime = setting.time;
         timeLeft = totalTime;
         
@@ -80,14 +83,40 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTimerBar();
         
         setupBoard(setting);
-        startTimer();
+
+        // [수정] 카드 앞면 먼저 보여주기
+        const allCards = document.querySelectorAll('.card');
+        allCards.forEach(card => card.classList.add('flipped'));
+
+        // [수정] 앞면이 보이는 상태에서 3초 카운트다운 시작
+        countdownOverlay.classList.remove("hidden");
+        let count = 3;
+        countdownText.innerText = count;
+
+        const countInterval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                countdownText.innerText = count;
+            } else {
+                clearInterval(countInterval);
+                countdownOverlay.classList.add("hidden");
+                
+                // 카드 다시 덮기
+                allCards.forEach(card => card.classList.remove('flipped'));
+                
+                // 카드 뒤집히는 애니메이션(0.4s) 대기 후 게임 시작
+                setTimeout(() => {
+                    canFlip = true; 
+                    startTimer();
+                }, 400); 
+            }
+        }, 1000);
     }
 
     function setupBoard(setting) {
         gameBoard.innerHTML = '';
         gameBoard.style.gridTemplateColumns = `repeat(${setting.cols}, 1fr)`;
 
-        // 모바일 대응을 위한 실시간 크기 계산 로직
         const boardPadding = 40; 
         const availableWidth = window.innerWidth - boardPadding;
         const availableHeight = window.innerHeight - 180; 

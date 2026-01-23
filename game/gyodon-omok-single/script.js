@@ -108,52 +108,37 @@ function switchTurn() {
     resetTimer();
 
     if (currentPlayer === 2 && gameState === "PLAYING") {
-        setTimeout(makeComputerMove, 600); 
+        setTimeout(makeComputerMove, 1500); // 0.6초에서 1.5초로 변경
     }
 }
 
 function makeComputerMove() {
     if (gameState !== "PLAYING" || currentPlayer !== 2) return;
     
-    // 실수 로직 추가: 약 15% 확률로 멍청한 수를 둠
-    const isBlunder = Math.random() < 0.15;
     let targetR, targetC;
+    let bestScore = -1;
+    let bestMoves = [];
 
-    if (isBlunder) {
-        let emptyCells = [];
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if (board[r][c] === 0) emptyCells.push({ r, c });
-            }
-        }
-        const blunderMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        targetR = blunderMove.r;
-        targetC = blunderMove.c;
-    } else {
-        // 원래의 스마트한 AI 로직
-        let bestScore = -1;
-        let bestMoves = [];
+    for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            if (board[r][c] === 0) {
+                let attackScore = evaluateMove(r, c, 2);
+                let defenseScore = evaluateMove(r, c, 1);
+                let totalScore = Math.max(attackScore, defenseScore * 0.95);
 
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if (board[r][c] === 0) {
-                    let attackScore = evaluateMove(r, c, 2);
-                    let defenseScore = evaluateMove(r, c, 1);
-                    let totalScore = Math.max(attackScore, defenseScore * 0.95);
-
-                    if (totalScore > bestScore) {
-                        bestScore = totalScore;
-                        bestMoves = [{ r, c }];
-                    } else if (totalScore === bestScore) {
-                        bestMoves.push({ r, c });
-                    }
+                if (totalScore > bestScore) {
+                    bestScore = totalScore;
+                    bestMoves = [{ r, c }];
+                } else if (totalScore === bestScore) {
+                    bestMoves.push({ r, c });
                 }
             }
         }
-        const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-        targetR = bestMove.r;
-        targetC = bestMove.c;
     }
+    
+    const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+    targetR = bestMove.r;
+    targetC = bestMove.c;
     
     if (targetR !== undefined) {
         board[targetR][targetC] = 2;
@@ -183,7 +168,7 @@ function evaluateMove(r, c, player) {
                 nr += dr * s;
                 nc += dc * s;
             }
-            if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nr >= BOARD_SIZE || (board[nr][nc] !== 0 && board[nr][nc] !== player)) {
+            if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE || (board[nr][nc] !== 0 && board[nr][nc] !== player)) {
                 blocked++;
             }
         }

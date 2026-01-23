@@ -56,8 +56,18 @@ body { margin: 0; padding: 0; overflow: hidden; font-family: 'Gowun Dodum', sans
 #timer-bar { width: 100%; height: 100%; background: var(--mint-green); transition: width 0.1s linear; }
 
 /* 모달 및 게임오버 */
-#modal-content, #gameover-content { background: white; padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-#modal-content { max-width: 85%; }
+#modal-content { background: white; padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-width: 85%; }
+
+/* 요청하신 대로 결과 박스를 옆으로 더 넓게 수정했습니다 */
+#gameover-content { 
+  background: white; 
+  padding: 40px; 
+  border-radius: 30px; 
+  text-align: center; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+  width: 85%;          /* 화면 대비 너비 비율 확장 */
+  max-width: 500px;    /* 최대 너비 제한 상향 조정 */
+}
 
 .char-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .char-item { background: #f9f9f9; border-radius: 20px; padding: 10px; border: 2px solid transparent; transition: 0.2s; }
@@ -67,7 +77,7 @@ body { margin: 0; padding: 0; overflow: hidden; font-family: 'Gowun Dodum', sans
 .hidden { display: none !important; }
 #gameCanvas { width: 100vw; height: 100vh; display: block; }
 
-/* 기타 게임오버 벌칙 요소 (기존과 동일) */
+/* 기타 게임오버 벌칙 요소 */
 .winner-circle-large { width: 100px; height: 100px; background: #f0fdf4; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; border: 4px solid var(--mint-green); }
 .winner-circle-large img { width: 70px; height: 70px; object-fit: contain; }
 #penalty-container { margin: 15px 0 20px 0; padding: 10px; background: #fff5f5; border: 2px dashed #ff8787; border-radius: 15px; }

@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMPgn8qKd8QJfMYxy-U1vhaYGggowioJ3RPpLENzel_Py6RWX9aZabTA5xJdSDZKoS/exec"; 
+const SCRIPT_URL = "YOUR_GOOGLE_APP_SCRIPT_URL"; 
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");

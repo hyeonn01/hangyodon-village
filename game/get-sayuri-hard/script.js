@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMPgn8qKd8QJfMYxy-U1vhaYGggowioJ3RPpLENzel_Py6RWX9aZabTA5xJdSDZKoS/exec"; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPuErU6EQH2eCvqAvfjudI6Fvp8hZ6LehFD17fMPd-X15qdz8d8SiPTalGWtstd2rqIA/exec"; 
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -9,7 +9,6 @@ function resizeCanvas() {
   canvas.height = window.innerHeight * dpr;
   ctx.scale(dpr, dpr);
   
-  // 창 크기가 바뀔 때 플레이어 위치가 화면 밖으로 나가지 않게 보정
   if (player) {
     player.y = window.innerHeight - 150;
     player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
@@ -38,7 +37,6 @@ const player = {
   keySpeed: 8 
 };
 
-// 캔버스 초기 설정 및 창 크기 변경 이벤트 리스너 추가
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
@@ -215,18 +213,26 @@ function update(timestamp) {
   
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
-  if (timestamp - lastSpawnTime > Math.max(300, 500 - (score/10))) {
-    const isOctopus = Math.random() < 0.15;
+  // --- 하드모드 로직 적용 구간 ---
+  // 1. 스폰 간격: 점수가 오를수록 더 빨리 떨어짐 (최소 200ms까지 단축)
+  const spawnInterval = Math.max(200, 500 - (score / 5)); 
+  if (timestamp - lastSpawnTime > spawnInterval) {
+    // 2. 문어 확률: 점수가 오를수록 문어 확률 증가 (최대 40% 확률)
+    const octopusProb = Math.min(0.4, 0.15 + (score / 2000));
+    const isOctopus = Math.random() < octopusProb;
+    
     items.push({ 
       x: Math.random() * (window.innerWidth - 80), 
       y: -80, 
       width: isOctopus ? 50 : 80, 
       height: isOctopus ? 50 : 80, 
-      speed: 2.5 + (score/500), 
+      // 3. 속도 증가: 기본 속도 3.5에서 시작하여 점수당 더 빠르게 가속
+      speed: 3.5 + (score / 250), 
       type: isOctopus ? "octopus" : "normal" 
     });
     lastSpawnTime = timestamp;
   }
+  // ----------------------------
 
   for (let i = items.length - 1; i >= 0; i--) {
     const it = items[i];

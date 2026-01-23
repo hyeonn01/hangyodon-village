@@ -15,7 +15,7 @@
         :root {
             --border-width: clamp(8px, 3vw, 15px);
             --mint-color: #88D8C0;
-            --soft-pink: #FFDDEB; /* 더 연하고 부드러운 파스텔 핑크 */
+            --soft-pink: #FFDDEB;
         }
 
         html {
@@ -113,14 +113,28 @@
 
         /* --- 메인 및 푸터 --- */
         .game-section { flex: 1 0 auto; padding: 20px 0; }
+
+        /* 기본 아이콘 크기 */
+        .game-icon { 
+            width: 50%; 
+            height: auto; 
+            max-height: 90px;
+            margin-bottom: 10px;
+        }
+
+        /* 사유리 구하기 이미지 전용 (키움) */
+        .large-icon {
+            width: 70% !important;
+            max-height: 110px !important;
+        }
+
         .main-footer { padding: 30px 15px; text-align: center; background-color: #fcfdfd; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
         .share-container { width: 100%; max-width: 280px; margin: 0 auto 10px auto; }
         
-        /* 부드러운 연핑크 버튼 */
         .share-btn {
             width: 100%; 
             background-color: var(--soft-pink); 
-            color: #d687a7; /* 텍스트는 가독성을 위해 조금 진한 핑크 */
+            color: #d687a7;
             border: none;
             padding: 12px; 
             border-radius: 20px; 
@@ -128,7 +142,7 @@
             font-size: 15px; 
             font-weight: bold; 
             cursor: pointer;
-            box-shadow: 0 4px 0px #f2c9db; /* 버튼색보다 살짝 진한 그림자 */
+            box-shadow: 0 4px 0px #f2c9db;
             transition: all 0.2s;
         }
         .share-btn:active { transform: translateY(2px); box-shadow: 0 2px 0px #f2c9db; }
@@ -167,12 +181,7 @@
             font-weight: bold; 
         }
 
-        /* 안내 문구 스타일 */
-        .notice-text {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 10px;
-        }
+        .notice-text { font-size: 12px; color: #999; margin-bottom: 10px; }
 
         @media (max-width: 480px) {
             .speech-bubble { font-size: 18px; max-width: 90px; }
@@ -205,7 +214,7 @@
 
         <main class="game-section">
             <div class="village-map">
-                <div class="game-entry" onclick="openModal()">
+                <div class="game-entry" onclick="openModal('bounce-ball')">
                     <div class="game-card">
                         <div class="game-badge">HOT</div>
                         <img src="bounce-ball-icon.png" alt="바운스볼" class="game-icon">
@@ -213,8 +222,13 @@
                         <p>교동이를 집으로!</p>
                     </div>
                 </div>
-                <div class="game-entry locked">
-                    <div class="game-card"><div class="lock-icon">🔒</div><h2>준비 중</h2><p>Coming Soon</p></div>
+                <div class="game-entry" onclick="openModal('get-sayuri')">
+                    <div class="game-card">
+                        <div class="game-badge" style="background: #FFB7CE;">NEW</div>
+                        <img src="get-sayuri.png" alt="사유리구하기" class="game-icon large-icon">
+                        <h2>사유리 구하기</h2>
+                        <p>사유리를 받아줘!</p>
+                    </div>
                 </div>
                 <div class="game-entry locked">
                     <div class="game-card"><div class="lock-icon">🔒</div><h2>준비 중</h2><p>Coming Soon</p></div>
@@ -237,8 +251,8 @@
         <div class="modal-content">
             <div class="modal-header"><h3>난이도 선택</h3></div>
             <div class="modal-buttons">
-                <a href="https://gohomegyodon-easy.netlify.app/" target="_blank" class="mode-btn easy" onclick="closeModal()">이지 모드 🐥</a>
-                <a href="https://gohomehangyodon2.netlify.app/" target="_blank" class="mode-btn hard" onclick="closeModal()">하드 모드 🔥</a>
+                <a href="#" id="easy-link" class="mode-btn easy" onclick="closeModal()">이지 모드 🐥</a>
+                <a href="#" id="hard-link" class="mode-btn hard" onclick="closeModal()">하드 모드 🔥</a>
             </div>
             <button class="close-modal-text" onclick="closeModal()">나중에 할래</button>
         </div>
@@ -273,7 +287,6 @@
     <div id="info-btn" onclick="openGuestbook()">❤</div>
 
     <script>
-        // ★ 본인의 구글 웹 앱 URL을 여기에 넣으세요 ★
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhFIa0igBqaHTaIwYrsCgKMnE3TBKsYfhwPGXipEs7JmaoVHBg4rwPSoW8G7RZOIc4wg/exec';
 
         window.addEventListener('load', () => {
@@ -281,7 +294,21 @@
             setTimeout(() => { loader.classList.add('fade-out'); }, 1500);
         });
 
-        function openModal() { document.getElementById('game-modal').classList.remove('hidden'); }
+        function openModal(gameType) { 
+            const easyLink = document.getElementById('easy-link');
+            const hardLink = document.getElementById('hard-link');
+
+            if(gameType === 'bounce-ball') {
+                easyLink.href = "./game/bounce-ball/index.html";
+                hardLink.href = "./game/bounce-ball-hard/index.html";
+            } else if(gameType === 'get-sayuri') {
+                easyLink.href = "./game/get-sayuri/index.html";
+                hardLink.href = "./game/get-sayuri-hard/index.html"; 
+            }
+
+            document.getElementById('game-modal').classList.remove('hidden'); 
+        }
+
         function closeModal() { document.getElementById('game-modal').classList.add('hidden'); }
         function openGuestbook() { document.getElementById('guestbook-modal').classList.remove('hidden'); fetchMessages(); }
         function closeGuestbook() { document.getElementById('guestbook-modal').classList.add('hidden'); }
@@ -324,20 +351,18 @@
         }
         setInterval(talk, 8000);
 
-        // 구글 시트에서 메시지 가져오기
         async function fetchMessages() {
             const list = document.getElementById('message-list');
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
-                window.allMessages = data; // 전역 변수에 저장
-                renderMessages(false); // 수정됨: 최신 3개만 보여주도록 false 전달
+                window.allMessages = data;
+                renderMessages(false);
             } catch (e) {
                 list.innerHTML = `<div style="padding:20px; color:#aaa; text-align:center;">메시지를 불러오지 못했습니다.</div>`;
             }
         }
 
-        // 메시지 화면에 그리기
         function renderMessages(showFull) {
             const list = document.getElementById('message-list');
             const moreBtn = document.getElementById('load-more-btn');
@@ -349,10 +374,9 @@
             }
 
             const reversed = [...data].reverse();
-            // 수정됨: 요청하신 대로 항상 최신 3개만 표시하도록 설정
             const displayMessages = reversed.slice(0, 3);
             
-            if(moreBtn) moreBtn.style.display = 'none'; // 버튼 숨김 처리
+            if(moreBtn) moreBtn.style.display = 'none';
             
             list.innerHTML = displayMessages.map(m => `
                 <div class="msg-item">
@@ -361,7 +385,6 @@
             `).join('');
         }
 
-        // 구글 시트에 메시지 추가하기
         async function addMessage() {
             const nickInput = document.getElementById('nickname');
             const msgInput = document.getElementById('message');

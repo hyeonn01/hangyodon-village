@@ -5,14 +5,10 @@ const ctx = canvas.getContext("2d");
 let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas() {
-  // 1. 캔버스의 물리적 해상도 설정 (DPR 반영)
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
-  
-  // 2. 캔버스의 스타일 크기 고정 (화면 확대 방지 핵심)
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
-  
   ctx.scale(dpr, dpr);
   
   if (player) {
@@ -30,6 +26,7 @@ let userNickname = localStorage.getItem("sayuri_nickname");
 let hasSeenGuide = sessionStorage.getItem("sayuri_guide_seen");
 
 let items = [];
+let scorePopups = []; 
 const targetFPS = 60;
 let lastTime = performance.now();
 let lastSpawnTime = 0;
@@ -43,12 +40,11 @@ const player = {
   keySpeed: 8 
 };
 
-// 초기 설정
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 let imagesLoaded = 0;
-const totalImages = 4;
+const totalImages = 5; 
 function imageLoaded() {
   imagesLoaded++;
   if (imagesLoaded === totalImages) {
@@ -60,8 +56,9 @@ const hangyodonImg = new Image(); hangyodonImg.src = "images/hangyodon.png";
 const sayuriImg = new Image(); sayuriImg.src = "images/sayuri.png";
 const octopusImg = new Image(); octopusImg.src = "images/octopus.png";
 const inkImg = new Image(); inkImg.src = "images/ink.png";
+const lifeImg = new Image(); lifeImg.src = "images/hangyodon-logo.png"; 
 
-[hangyodonImg, sayuriImg, octopusImg, inkImg].forEach(img => {
+[hangyodonImg, sayuriImg, octopusImg, inkImg, lifeImg].forEach(img => {
   img.onload = imageLoaded;
 });
 
@@ -163,6 +160,9 @@ function startGame() {
 
 async function updateRanking() {
   const list = document.getElementById("ranking-list");
+  list.style.textAlign = "left";
+  list.style.paddingLeft = "20px"; 
+
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
@@ -191,15 +191,22 @@ function showGameOver() {
 
 function drawUI() {
   ctx.save();
-  ctx.fillStyle = "white";
+  const lifeSize = 35;
+  for (let i = 0; i < lives; i++) {
+    ctx.drawImage(lifeImg, 20 + (i * (lifeSize + 5)), 80, lifeSize, lifeSize);
+  }
+  ctx.fillStyle = "#FFD700";
   ctx.font = "bold 24px 'Gowun Dodum'";
   ctx.shadowBlur = 4;
   ctx.shadowColor = "rgba(0,0,0,0.5)";
-  
-  let heartStr = "";
-  for(let i=0; i<lives; i++) heartStr += "❤️";
-  ctx.fillText(heartStr, 20, 100); 
-  
+  for (let i = scorePopups.length - 1; i >= 0; i--) {
+    const popup = scorePopups[i];
+    ctx.globalAlpha = popup.life / 60;
+    ctx.fillText("+10", popup.x, popup.y);
+    popup.y -= 1; 
+    popup.life -= 1;
+    if (popup.life <= 0) scorePopups.splice(i, 1);
+  }
   ctx.restore();
 }
 
@@ -221,11 +228,23 @@ function update(timestamp) {
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
   if (timestamp - lastSpawnTime > Math.max(300, 500 - (score/10))) {
-    const isOctopus = Math.random() < 0.15;
+    // 문어 생성 확률을 15%에서 8%로 감소
+    const isOctopus = Math.random() < 0.08; 
+    const itemWidth = isOctopus ? 50 : 80;
+    let newX;
+    let attempts = 0;
+    let isTooClose;
+
+    do {
+      newX = Math.random() * (window.innerWidth - itemWidth);
+      isTooClose = items.some(it => it.y < 200 && Math.abs(it.x - newX) < 100);
+      attempts++;
+    } while (isTooClose && attempts < 10);
+
     items.push({ 
-      x: Math.random() * (window.innerWidth - 80), 
+      x: newX, 
       y: -80, 
-      width: isOctopus ? 50 : 80, 
+      width: itemWidth, 
       height: isOctopus ? 50 : 80, 
       speed: 2.5 + (score/500), 
       type: isOctopus ? "octopus" : "normal" 
@@ -237,12 +256,24 @@ function update(timestamp) {
     const it = items[i];
     it.y += it.speed * timeFactor;
     
-    if (it.y + it.height > player.y && it.y < player.y + 50 && it.x + it.width > player.x && it.x < player.x + player.width) {
+    const collisionPadding = 20;
+    const hitAreaHeight = 35;
+
+    if (
+      it.y + it.height > player.y && 
+      it.y + it.height < player.y + hitAreaHeight &&
+      it.x + it.width > player.x + collisionPadding && 
+      it.x < player.x + player.width - collisionPadding
+    ) {
       if (it.type === "octopus") { 
-        score = Math.max(0, score - 20); 
-        inkEffectTimer = 180; 
+        inkEffectTimer = 240; 
       } else { 
-        score += 10; 
+        score += 10;
+        scorePopups.push({
+          x: player.x + player.width,
+          y: player.y + 20,
+          life: 60
+        });
       }
       document.getElementById("score").innerText = "SCORE: " + score;
       items.splice(i, 1); 
@@ -272,11 +303,11 @@ function update(timestamp) {
 
   if (inkEffectTimer > 0) {
     ctx.save(); 
-    ctx.globalAlpha = Math.min(0.8, inkEffectTimer / 30);
-    // 먹물 크기를 화면 너비에 맞춰 조정 (가변형)
-    const inkW = Math.min(650, window.innerWidth * 0.9);
-    const inkH = inkW * 0.7;
-    ctx.drawImage(inkImg, (window.innerWidth - inkW) / 2, (window.innerHeight - inkH) / 2, inkW, inkH);
+    ctx.globalAlpha = Math.min(0.95, inkEffectTimer / 40);
+    const side = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+    const drawX = (window.innerWidth - side) / 2;
+    const drawY = (window.innerHeight - side) / 2;
+    ctx.drawImage(inkImg, drawX, drawY, side, side);
     ctx.restore(); 
     inkEffectTimer -= 1 * timeFactor;
   }

@@ -5,14 +5,10 @@ const ctx = canvas.getContext("2d");
 let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas() {
-  // 물리적 픽셀 크기 설정
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
-  
-  // CSS 표시 크기 고정 (확대 방지 핵심)
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
-  
   ctx.scale(dpr, dpr);
   
   if (player) {
@@ -30,6 +26,7 @@ let userNickname = localStorage.getItem("sayuri_nickname");
 let hasSeenGuide = sessionStorage.getItem("sayuri_guide_seen");
 
 let items = [];
+let scorePopups = []; 
 const targetFPS = 60;
 let lastTime = performance.now();
 let lastSpawnTime = 0;
@@ -37,17 +34,18 @@ let inkEffectTimer = 0;
 
 const keys = { Left: false, Right: false };
 
+// HARD: 플레이어 크기를 살짝 줄여 정교한 컨트롤 유도 (130 -> 115)
 const player = {
-  x: window.innerWidth / 2 - 65, y: window.innerHeight - 150,
-  width: 130, height: 110, speed: 15, targetX: window.innerWidth / 2 - 65, isDragging: false,
-  keySpeed: 10 // 키보드 이동 속도도 약간 상향
+  x: window.innerWidth / 2 - 57, y: window.innerHeight - 150,
+  width: 115, height: 100, speed: 18, targetX: window.innerWidth / 2 - 57, isDragging: false,
+  keySpeed: 10 
 };
 
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 let imagesLoaded = 0;
-const totalImages = 4;
+const totalImages = 5; 
 function imageLoaded() {
   imagesLoaded++;
   if (imagesLoaded === totalImages) {
@@ -59,8 +57,9 @@ const hangyodonImg = new Image(); hangyodonImg.src = "images/hangyodon.png";
 const sayuriImg = new Image(); sayuriImg.src = "images/sayuri.png";
 const octopusImg = new Image(); octopusImg.src = "images/octopus.png";
 const inkImg = new Image(); inkImg.src = "images/ink.png";
+const lifeImg = new Image(); lifeImg.src = "images/hangyodon-logo.png"; 
 
-[hangyodonImg, sayuriImg, octopusImg, inkImg].forEach(img => {
+[hangyodonImg, sayuriImg, octopusImg, inkImg, lifeImg].forEach(img => {
   img.onload = imageLoaded;
 });
 
@@ -162,6 +161,9 @@ function startGame() {
 
 async function updateRanking() {
   const list = document.getElementById("ranking-list");
+  list.style.textAlign = "left";
+  list.style.paddingLeft = "20px"; 
+
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
@@ -183,22 +185,29 @@ function showGameOver() {
   const best = localStorage.getItem("sayuri_best_hard") || 0;
   if (score > parseInt(best)) localStorage.setItem("sayuri_best_hard", score);
   document.getElementById("final-score").innerText = score;
-  document.getElementById("best-score").innerText = localStorage.getItem("sayuri_best_hard") || score;
+  document.getElementById("best-score").innerText = localStorage.getItem("sayuri_best_hard");
   gameOverModal.classList.remove("hidden");
   updateRanking();
 }
 
 function drawUI() {
   ctx.save();
-  ctx.fillStyle = "white";
+  const lifeSize = 35;
+  for (let i = 0; i < lives; i++) {
+    ctx.drawImage(lifeImg, 20 + (i * (lifeSize + 5)), 80, lifeSize, lifeSize);
+  }
+  ctx.fillStyle = "#FFD700";
   ctx.font = "bold 24px 'Gowun Dodum'";
   ctx.shadowBlur = 4;
   ctx.shadowColor = "rgba(0,0,0,0.5)";
-  
-  let heartStr = "";
-  for(let i=0; i<lives; i++) heartStr += "❤️";
-  ctx.fillText(heartStr, 20, 100); 
-  
+  for (let i = scorePopups.length - 1; i >= 0; i--) {
+    const popup = scorePopups[i];
+    ctx.globalAlpha = popup.life / 60;
+    ctx.fillText("+10", popup.x, popup.y);
+    popup.y -= 1; 
+    popup.life -= 1;
+    if (popup.life <= 0) scorePopups.splice(i, 1);
+  }
   ctx.restore();
 }
 
@@ -219,21 +228,29 @@ function update(timestamp) {
   
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
-  // --- 하드모드 난이도 가속 로직 ---
-  // 이지보다 더 빠르고 빈번하게 스폰
-  const spawnInterval = Math.max(180, 450 - (score / 4)); 
+  // HARD: 생성 주기 단축 및 점수 비례 가속
+  const spawnInterval = Math.max(250, 450 - (score/8)); 
   if (timestamp - lastSpawnTime > spawnInterval) {
-    // 문어 확률이 빠르게 증가 (최대 45%)
-    const octopusProb = Math.min(0.45, 0.20 + (score / 1500));
-    const isOctopus = Math.random() < octopusProb;
-    
+    // HARD: 문어 출현 확률 (12%)
+    const isOctopus = Math.random() < 0.12; 
+    const itemWidth = isOctopus ? 55 : 80;
+    let newX;
+    let attempts = 0;
+    let isTooClose;
+
+    do {
+      newX = Math.random() * (window.innerWidth - itemWidth);
+      isTooClose = items.some(it => it.y < 200 && Math.abs(it.x - newX) < 100);
+      attempts++;
+    } while (isTooClose && attempts < 10);
+
     items.push({ 
-      x: Math.random() * (window.innerWidth - 80), 
+      x: newX, 
       y: -80, 
-      width: isOctopus ? 50 : 80, 
-      height: isOctopus ? 50 : 80, 
-      // 초기 하강 속도 상향 및 가속도 증가
-      speed: 4.0 + (score / 200), 
+      width: itemWidth, 
+      height: isOctopus ? 55 : 80, 
+      // HARD: 기본 속도 증가 (2.5 -> 3.5) 및 가속도 증가
+      speed: 3.5 + (score/400), 
       type: isOctopus ? "octopus" : "normal" 
     });
     lastSpawnTime = timestamp;
@@ -243,12 +260,30 @@ function update(timestamp) {
     const it = items[i];
     it.y += it.speed * timeFactor;
     
-    if (it.y + it.height > player.y && it.y < player.y + 50 && it.x + it.width > player.x && it.x < player.x + player.width) {
+    const collisionPadding = 15;
+    const hitAreaHeight = 40;
+
+    if (
+      it.y + it.height > player.y && 
+      it.y + it.height < player.y + hitAreaHeight &&
+      it.x + it.width > player.x + collisionPadding && 
+      it.x < player.x + player.width - collisionPadding
+    ) {
       if (it.type === "octopus") { 
-        score = Math.max(0, score - 20); 
-        inkEffectTimer = 180; 
+        // HARD: 문어 충돌 시 목숨 감소 + 먹물 효과 동시 발생
+        lives--; 
+        inkEffectTimer = 240; 
+        if (lives <= 0) {
+          showGameOver();
+          return;
+        }
       } else { 
-        score += 10; 
+        score += 10;
+        scorePopups.push({
+          x: player.x + player.width,
+          y: player.y + 20,
+          life: 60
+        });
       }
       document.getElementById("score").innerText = "SCORE: " + score;
       items.splice(i, 1); 
@@ -278,10 +313,11 @@ function update(timestamp) {
 
   if (inkEffectTimer > 0) {
     ctx.save(); 
-    ctx.globalAlpha = Math.min(0.8, inkEffectTimer / 30);
-    const inkW = Math.min(650, window.innerWidth * 0.9);
-    const inkH = inkW * 0.7;
-    ctx.drawImage(inkImg, (window.innerWidth - inkW) / 2, (window.innerHeight - inkH) / 2, inkW, inkH);
+    ctx.globalAlpha = Math.min(0.95, inkEffectTimer / 40);
+    const side = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+    const drawX = (window.innerWidth - side) / 2;
+    const drawY = (window.innerHeight - side) / 2;
+    ctx.drawImage(inkImg, drawX, drawY, side, side);
     ctx.restore(); 
     inkEffectTimer -= 1 * timeFactor;
   }

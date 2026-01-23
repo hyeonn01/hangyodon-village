@@ -50,3 +50,14 @@ body {
   background: #92D1E5; color: white; border: none; padding: 15px 0; width: 100%; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer;
 }
 canvas { display: block; background-color: transparent; }
+#gameCanvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  touch-action: none;
+  /* 아래 배경 설정을 추가하세요 */
+  background-image: url('images/background.png'); /* 배경 이미지 경로 */
+  background-size: cover;    /* 화면에 꽉 차게 조절 */
+  background-position: center; /* 가운데 정렬 */
+  background-repeat: no-repeat;
+}

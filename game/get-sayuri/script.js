@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyw7FTQp-zWthXkhZY2PpClmJ95veNJYUcpkWszlEWutAnZ9thfvF8GCA5JIOFmJ7Kz/exec"; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc010aHZi_09j_ZDbWG6AxCK8LgbexuyaOlVnRsrrrI4nqJJGncbpqyZeWt-lTPvGv/exec"; 
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -66,6 +66,8 @@ const nickOverlay = document.getElementById("nickname-overlay");
 const infoModal = document.getElementById("modal-overlay");
 const startOverlay = document.getElementById("start-overlay");
 const gameOverModal = document.getElementById("gameover-overlay");
+const nickInput = document.getElementById("nickname-input");
+const nickEditBtn = document.getElementById("nickname-edit-btn"); // ✏️ 버튼 추가
 
 function drawInitial() {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -84,19 +86,34 @@ window.addEventListener("load", () => {
   }
 });
 
+// 저장 버튼 클릭 시
 document.getElementById("save-nickname-btn").onclick = () => {
-  const input = document.getElementById("nickname-input").value.trim();
+  const input = nickInput.value.trim();
   if (input) {
     localStorage.setItem("sayuri_nickname", input);
     userNickname = input;
     nickOverlay.classList.add("hidden");
+    
     if (!hasSeenGuide) {
       infoModal.classList.remove("hidden");
     } else {
       isModalOpen = false;
-      startOverlay.classList.remove("hidden");
+      if (gameStarted && !gameOver) {
+        lastTime = performance.now();
+        requestAnimationFrame(update);
+      } else {
+        startOverlay.classList.remove("hidden");
+      }
     }
   }
+};
+
+// [수정] ✏️ 아이콘 클릭 시 즉시 닉네임 창 띄우기
+nickEditBtn.onclick = (e) => {
+  e.stopPropagation();
+  isModalOpen = true;
+  if (userNickname) nickInput.value = userNickname;
+  nickOverlay.classList.remove("hidden");
 };
 
 document.getElementById("close-btn").onclick = (e) => {
@@ -255,12 +272,11 @@ function update(timestamp) {
     const it = items[i];
     it.y += it.speed * timeFactor;
     
-    // 판정 범위 수정: 좌우 여백을 넓혀 좁게 만들고, 높이 판정도 더 정밀하게 조정
-    const collisionPadding = 45; // 좌우 판정 축소 (값이 클수록 좁아짐)
-    const hitAreaHeight = 25;    // 상하 판정 높이 축소
+    const collisionPadding = 45; 
+    const hitAreaHeight = 25;
 
     if (
-      it.y + it.height > player.y + 10 && // 캐릭터 머리 살짝 아래부터 판정 시작
+      it.y + it.height > player.y + 10 && 
       it.y + it.height < player.y + 10 + hitAreaHeight &&
       it.x + it.width > player.x + collisionPadding && 
       it.x < player.x + player.width - collisionPadding

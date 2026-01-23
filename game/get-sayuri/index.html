@@ -9,24 +9,43 @@
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 캔버스 확대 방지를 위한 핵심 스타일 */
     #gameCanvas {
       width: 100vw;
       height: 100vh;
       display: block;
-      touch-action: none; /* 모바일 브라우저 기본 제스처 방지 */
+      touch-action: none;
+    }
+
+    /* 닉네임 변경 아이콘 버튼 스타일 (하드모드와 동일) */
+    #nickname-edit-btn {
+      position: absolute;
+      top: 20px;
+      right: 70px; /* 도움말 버튼(?) 왼쪽 */
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
   <div id="game-container">
     <div id="score">SCORE: 0</div>
+    
+    <div id="nickname-edit-btn">✏️</div>
     <div id="info-btn">?</div>
 
     <div id="nickname-overlay" class="overlay hidden">
       <div id="modal-content">
         <h2 style="color: #2c3e50; margin-bottom: 10px;">닉네임 설정</h2>
-        <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">최초 1회 닉네임을 설정해주세요.</p>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">사용하실 닉네임을 설정해주세요.</p>
         <input type="text" id="nickname-input" placeholder="최대 8글자" maxlength="8">
         <button id="save-nickname-btn" style="margin-top: 15px;">확인</button>
       </div>

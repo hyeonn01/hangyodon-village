@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0KLlbs-uu2WBXAdA2l63XvaijugdBFMmDGaIeEBuTHDunN1Gl2yXZvisqzN8BnyhcWQ/exec"; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9VYXEjd7Q_WRLouxJBHzylq9AJCYMl8s2SXcvxgdj_gHWRtYcT3v8pc5p33Icw_Q20g/exec"; 
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -34,7 +34,6 @@ let inkEffectTimer = 0;
 
 const keys = { Left: false, Right: false };
 
-// HARD: 플레이어 크기를 살짝 줄여 정교한 컨트롤 유도 (130 -> 115)
 const player = {
   x: window.innerWidth / 2 - 57, y: window.innerHeight - 150,
   width: 115, height: 100, speed: 18, targetX: window.innerWidth / 2 - 57, isDragging: false,
@@ -67,6 +66,8 @@ const nickOverlay = document.getElementById("nickname-overlay");
 const infoModal = document.getElementById("modal-overlay");
 const startOverlay = document.getElementById("start-overlay");
 const gameOverModal = document.getElementById("gameover-overlay");
+const nickInput = document.getElementById("nickname-input");
+const nickEditBtn = document.getElementById("nickname-edit-btn"); // 수정 아이콘 엘리먼트
 
 function drawInitial() {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -85,19 +86,35 @@ window.addEventListener("load", () => {
   }
 });
 
+// 닉네임 저장 버튼 로직
 document.getElementById("save-nickname-btn").onclick = () => {
-  const input = document.getElementById("nickname-input").value.trim();
+  const input = nickInput.value.trim();
   if (input) {
     localStorage.setItem("sayuri_nickname", input);
     userNickname = input;
     nickOverlay.classList.add("hidden");
+    
     if (!hasSeenGuide) {
       infoModal.classList.remove("hidden");
     } else {
       isModalOpen = false;
-      startOverlay.classList.remove("hidden");
+      // 만약 게임 중이었다면 루프 재개
+      if (gameStarted && !gameOver) {
+        lastTime = performance.now();
+        requestAnimationFrame(update);
+      } else {
+        startOverlay.classList.remove("hidden");
+      }
     }
   }
+};
+
+// [수정 사항] 도움말 옆 닉네임 변경 아이콘 클릭 시
+nickEditBtn.onclick = (e) => {
+  e.stopPropagation();
+  isModalOpen = true;
+  if (userNickname) nickInput.value = userNickname;
+  nickOverlay.classList.remove("hidden");
 };
 
 document.getElementById("close-btn").onclick = (e) => {
@@ -228,10 +245,8 @@ function update(timestamp) {
   
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
-  // HARD: 생성 주기 단축 및 점수 비례 가속
   const spawnInterval = Math.max(250, 450 - (score/8)); 
   if (timestamp - lastSpawnTime > spawnInterval) {
-    // HARD: 문어 출현 확률 (12%)
     const isOctopus = Math.random() < 0.12; 
     const itemWidth = isOctopus ? 55 : 80;
     let newX;
@@ -249,7 +264,6 @@ function update(timestamp) {
       y: -80, 
       width: itemWidth, 
       height: isOctopus ? 55 : 80, 
-      // HARD: 기본 속도 증가 (2.5 -> 3.5) 및 가속도 증가
       speed: 3.5 + (score/400), 
       type: isOctopus ? "octopus" : "normal" 
     });
@@ -260,9 +274,8 @@ function update(timestamp) {
     const it = items[i];
     it.y += it.speed * timeFactor;
     
-    // 이지모드와 동일하게 판정 범위 수정
-    const collisionPadding = 45; // 좌우 판정 축소
-    const hitAreaHeight = 25;    // 상하 판정 높이 축소
+    const collisionPadding = 45; 
+    const hitAreaHeight = 25;
 
     if (
       it.y + it.height > player.y + 10 && 
@@ -271,7 +284,6 @@ function update(timestamp) {
       it.x < player.x + player.width - collisionPadding
     ) {
       if (it.type === "octopus") { 
-        // HARD: 문어 충돌 시 목숨 감소 + 먹물 효과 동시 발생
         lives--; 
         inkEffectTimer = 240; 
         if (lives <= 0) {
@@ -315,7 +327,6 @@ function update(timestamp) {
   if (inkEffectTimer > 0) {
     ctx.save(); 
     ctx.globalAlpha = Math.min(0.95, inkEffectTimer / 40);
-    // 이지모드와 동일하게 먹물 크기 조정 (화면 너비의 60%)
     const side = window.innerWidth * 0.6;
     const drawX = (window.innerWidth - side) / 2;
     const drawY = (window.innerHeight - side) / 2;

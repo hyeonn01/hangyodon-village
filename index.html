@@ -16,6 +16,7 @@
             --border-width: clamp(8px, 3vw, 15px);
             --mint-color: #88D8C0;
             --soft-pink: #FFDDEB;
+            --kyodon-pink: #FFB7C5;
         }
 
         html {
@@ -111,7 +112,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1); white-space: nowrap;
         }
 
-        /* --- 메인 및 푸터 --- */
+        /* --- 게임 섹션 --- */
         .game-section { flex: 1 0 auto; padding: 20px 0; }
 
         .game-icon { 
@@ -147,44 +148,65 @@
         .share-btn:active { transform: translateY(2px); box-shadow: 0 2px 0px #f2c9db; }
         .copyright { font-size: 11px; color: #ccc; margin: 0; }
 
-        /* --- 교동운세 팝업 --- */
+        /* --- 모달 공통 --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100;
+        }
+        .hidden { display: none !important; }
+
+        /* --- 방명록 팝업 --- */
+        .guestbook-popup {
+            background: white; padding: 25px; border-radius: 40px;
+            width: 90%; max-width: 350px; text-align: center; border: 6px solid var(--kyodon-pink);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .guestbook-popup h3 { font-family: 'Dongle', sans-serif; font-size: 35px; margin: 0 0 10px; color: var(--kyodon-pink); }
+        
+        .message-list { 
+            max-height: 200px; overflow-y: auto; text-align: left; 
+            background: #fffcfd; border-radius: 15px; padding: 10px;
+            border: 1px solid #f9f9f9; margin-bottom: 10px;
+        }
+
+        .msg-item { 
+            display: flex; justify-content: flex-start; align-items: center;
+            padding: 10px 5px; border-bottom: 1px solid #f9f9f9; font-size: 14px;
+        }
+        .msg-item span { word-break: break-all; color: #333; }
+        .msg-item strong { color: #555; margin-right: 5px; flex-shrink: 0; }
+
+        .guestbook-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .guestbook-form input { border: 2px solid #eee; padding: 10px; border-radius: 15px; outline: none; font-family: 'Gowun Dodum'; }
+        .guestbook-form button { background: var(--kyodon-pink); color: white; border: none; padding: 10px; border-radius: 15px; font-weight: bold; cursor: pointer; }
+
+        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 5px 0 10px; }
+        .page-btn { background: none; border: none; color: var(--kyodon-pink); font-weight: bold; cursor: pointer; font-family: 'Gowun Dodum'; font-size: 14px; }
+        .page-info { font-size: 14px; color: #888; font-family: 'Gowun Dodum'; }
+
+        .close-modal-text { background: none; border: none; color: #aaa; font-size: 16px; font-family: 'Gowun Dodum'; text-decoration: underline; cursor: pointer; margin-top: 10px; }
+
+        /* --- 운세 팝업 --- */
         .fortune-popup {
-            background-color: #ffffff; 
-            padding: 25px; 
-            border-radius: 35px;
-            width: 85%; 
-            max-width: 320px; 
-            text-align: center; 
-            border: 5px solid var(--mint-color);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            position: relative;
+            background-color: #ffffff; padding: 25px; border-radius: 35px;
+            width: 85%; max-width: 320px; text-align: center; border: 5px solid var(--mint-color);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); position: relative;
         }
-        .fortune-card { 
-            background: #f0f9f7; 
-            border-radius: 20px; 
-            padding: 20px; 
-            margin: 15px 0; 
-            border: 2px dashed var(--mint-color); 
-        }
-        .fortune-text { 
-            font-family: 'Dongle', sans-serif; 
-            font-size: 28px; 
-            color: #333; 
-            line-height: 1.2; 
-            white-space: pre-line;
-        }
-        .fortune-lucky-item { 
-            font-size: 15px; 
-            color: #45B191; 
-            margin-top: 10px; 
-            font-weight: bold; 
+        .fortune-card { background: #f0f9f7; border-radius: 20px; padding: 20px; margin: 15px 0; border: 2px dashed var(--mint-color); }
+        .fortune-text { font-family: 'Dongle', sans-serif; font-size: 28px; color: #333; line-height: 1.2; white-space: pre-line; }
+        .fortune-lucky-item { font-size: 15px; color: #45B191; margin-top: 10px; font-weight: bold; }
+
+        #info-btn {
+            position: fixed; bottom: 20px; right: 20px; 
+            width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px);
+            background: var(--kyodon-pink); color: white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: clamp(25px, 6vw, 35px); border: 4px solid white; z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; cursor: pointer;
         }
 
-        .notice-text { font-size: 12px; color: #999; margin-bottom: 10px; }
-
-        @media (max-width: 480px) {
-            .speech-bubble { font-size: 18px; max-width: 90px; }
-        }
+        /* --- 모달 제목 스타일 보정 --- */
+        .modal-content h3 { font-family: 'Dongle', sans-serif; font-size: 38px; color: #45B191; margin: 0 0 20px 0; }
     </style>
 </head>
 <body>
@@ -235,12 +257,12 @@
                         <p>똑같은 카드 찾기!</p>
                     </div>
                 </div>
-                <div class="game-entry" onclick="location.href='./game/gyodon-omok/index.html'">
+                <div class="game-entry" onclick="openModal('omok')">
                     <div class="game-card">
                         <div class="game-badge" style="background: #A0E7E5;">NEW</div>
                         <img src="sanrio.png" alt="산리오 오목" class="game-icon">
                         <h2>산리오 오목</h2>
-                        <p>2인용 멀티게임</p>
+                        <p>친구와 함께해요!</p>
                     </div>
                 </div>
             </div>
@@ -255,11 +277,11 @@
     </div>
 
     <div id="game-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header"><h3>난이도 선택</h3></div>
-            <div class="modal-buttons">
-                <a href="#" id="easy-link" class="mode-btn easy" onclick="closeModal()">이지 모드 🐥</a>
-                <a href="#" id="hard-link" class="mode-btn hard" onclick="closeModal()">하드 모드 🔥</a>
+        <div class="modal-content" style="background:white; padding:30px; border-radius:50px; text-align:center; border:6px solid #88D8C0; width:90%; max-width:350px;">
+            <h3 id="modal-title">난이도 선택</h3>
+            <div style="display:flex; flex-direction:column; gap:15px; margin-bottom:20px;">
+                <a href="#" id="easy-link" style="background:#88D8C0; color:white; padding:12px; border-radius:25px; text-decoration:none; font-weight:bold; font-size:20px;">이지 모드 🐥</a>
+                <a href="#" id="hard-link" style="background:#FFB7C5; color:white; padding:12px; border-radius:25px; text-decoration:none; font-weight:bold; font-size:20px;">하드 모드 🔥</a>
             </div>
             <button class="close-modal-text" onclick="closeModal()">나중에 할래</button>
         </div>
@@ -268,14 +290,19 @@
     <div id="guestbook-modal" class="modal-overlay hidden">
         <div class="guestbook-popup">
             <h3>🩵교동이에게 한마디🩵</h3>
-            <p class="notice-text">* 댓글은 최대 3개까지 표시됩니다.</p>
             <div class="guestbook-form">
                 <input type="text" id="nickname" placeholder="닉네임" maxlength="5">
                 <input type="text" id="message" placeholder="메시지 입력" onkeypress="if(event.keyCode==13) addMessage()">
                 <button onclick="addMessage()">등록</button>
             </div>
             <div id="message-list" class="message-list">로딩 중...</div>
-            <button id="load-more-btn" class="load-more-btn hidden" style="display:none;" onclick="renderMessages(true)">이전 댓글 더보기 ▽</button>
+            
+            <div class="pagination-controls">
+                <button id="prev-btn" class="page-btn" onclick="changePage(-1)">◀ 이전</button>
+                <span id="page-info" class="page-info">1 / 1</span>
+                <button id="next-btn" class="page-btn" onclick="changePage(1)">다음 ▶</button>
+            </div>
+
             <button class="close-modal-text" onclick="closeGuestbook()">닫기</button>
         </div>
     </div>
@@ -294,31 +321,48 @@
     <div id="info-btn" onclick="openGuestbook()">❤</div>
 
     <script>
-        // ... (기존 script 로직 동일하게 유지)
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhFIa0igBqaHTaIwYrsCgKMnE3TBKsYfhwPGXipEs7JmaoVHBg4rwPSoW8G7RZOIc4wg/exec';
+        
+        let currentPage = 1;
+        const itemsPerPage = 3;
 
         window.addEventListener('load', () => {
             const loader = document.getElementById('loading-screen');
             setTimeout(() => { loader.classList.add('fade-out'); }, 1500);
         });
 
+        // UI 통일: 모든 게임의 난이도/모드 선택을 처리하는 통합 함수
         function openModal(gameType) { 
+            const title = document.getElementById('modal-title');
             const easyLink = document.getElementById('easy-link');
             const hardLink = document.getElementById('hard-link');
-
+            
             if(gameType === 'bounce-ball') {
+                title.innerText = "난이도 선택";
+                easyLink.innerText = "이지 모드 🐥";
+                hardLink.innerText = "하드 모드 🔥";
                 easyLink.href = "./game/bounce-ball/index.html";
                 hardLink.href = "./game/bounce-ball-hard/index.html";
             } else if(gameType === 'get-sayuri') {
+                title.innerText = "난이도 선택";
+                easyLink.innerText = "이지 모드 🐥";
+                hardLink.innerText = "하드 모드 🔥";
                 easyLink.href = "./game/get-sayuri/index.html";
                 hardLink.href = "./game/get-sayuri-hard/index.html"; 
+            } else if(gameType === 'omok') {
+                // 오목의 경우 UI는 똑같지만 텍스트만 '모드 선택'으로 변경
+                title.innerText = "모드 선택";
+                easyLink.innerText = "혼자 하기 (AI) 🤖";
+                hardLink.innerText = "친구랑 하기 (2P) 🐙";
+                easyLink.href = "./game/gyodon-omok-single/index.html";
+                hardLink.href = "./game/gyodon-omok/index.html";
             }
-
+            
             document.getElementById('game-modal').classList.remove('hidden'); 
         }
 
         function closeModal() { document.getElementById('game-modal').classList.add('hidden'); }
-        function openGuestbook() { document.getElementById('guestbook-modal').classList.remove('hidden'); fetchMessages(); }
+        function openGuestbook() { document.getElementById('guestbook-modal').classList.remove('hidden'); currentPage = 1; fetchMessages(); }
         function closeGuestbook() { document.getElementById('guestbook-modal').classList.add('hidden'); }
         function openFortune() { document.getElementById('fortune-modal').classList.remove('hidden'); }
         function closeFortune() { document.getElementById('fortune-modal').classList.add('hidden'); }
@@ -365,32 +409,49 @@
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
                 window.allMessages = data;
-                renderMessages(false);
+                renderMessages();
             } catch (e) {
                 list.innerHTML = `<div style="padding:20px; color:#aaa; text-align:center;">메시지를 불러오지 못했습니다.</div>`;
             }
         }
 
-        function renderMessages(showFull) {
+        function renderMessages() {
             const list = document.getElementById('message-list');
-            const moreBtn = document.getElementById('load-more-btn');
+            const pageInfo = document.getElementById('page-info');
             const data = window.allMessages || [];
             
             if(data.length === 0) {
                 list.innerHTML = `<div style="padding:20px; color:#aaa; text-align:center;">메시지를 남겨보세요!</div>`;
+                pageInfo.innerText = "1 / 1";
                 return;
             }
 
             const reversed = [...data].reverse();
-            const displayMessages = reversed.slice(0, 3);
+            const totalPages = Math.ceil(reversed.length / itemsPerPage);
             
-            if(moreBtn) moreBtn.style.display = 'none';
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const displayMessages = reversed.slice(startIndex, startIndex + itemsPerPage);
             
+            pageInfo.innerText = `${currentPage} / ${totalPages}`;
+            document.getElementById('prev-btn').style.opacity = currentPage === 1 ? "0.3" : "1";
+            document.getElementById('next-btn').style.opacity = currentPage === totalPages ? "0.3" : "1";
+
             list.innerHTML = displayMessages.map(m => `
                 <div class="msg-item">
                     <span><strong>${m.nickname}</strong>: ${m.message || m.text}</span>
                 </div>
             `).join('');
+        }
+
+        function changePage(direction) {
+            const data = window.allMessages || [];
+            const totalPages = Math.ceil(data.length / itemsPerPage);
+            const nextPage = currentPage + direction;
+            if (nextPage >= 1 && nextPage <= totalPages) {
+                currentPage = nextPage;
+                renderMessages();
+            }
         }
 
         async function addMessage() {
@@ -400,18 +461,17 @@
             const msg = msgInput.value.trim();
             if(!nick || !msg) return;
 
-            const newMsg = { id: Date.now(), nickname: nick, message: msg };
-            
             try {
                 document.getElementById('message-list').innerHTML = "등록 중...";
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify(newMsg)
+                    body: JSON.stringify({ id: Date.now(), nickname: nick, message: msg })
                 });
                 nickInput.value = ''; msgInput.value = '';
+                currentPage = 1;
                 fetchMessages();
             } catch (e) {
-                alert("등록 실패! URL 설정을 확인하세요.");
+                alert("등록 실패! 잠시 후 다시 시도하세요.");
                 fetchMessages();
             }
         }

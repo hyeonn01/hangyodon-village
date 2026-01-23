@@ -12,12 +12,7 @@ let currentPlayer = 1;
 let gameState = "START";
 let timeLeft = 30;
 let timerInterval = null;
-
-const penalties = [
-    "커피 쏘기", "딱밤 맞기", "당장 심부름 하기", "간식 쏘기",
-    "노래 한 곡 부르기", "소원 들어주기 3회권", "물 떠다주기",
-    "소원 들어주기 1회권", "심부름 1회권", "심부름 3회권"
-];
+let winningStones = []; // 승리한 돌들의 좌표 저장용
 
 const charImages = {};
 [1, 2, 3, 4].forEach(id => {
@@ -34,7 +29,6 @@ function resizeCanvas() {
     ctx.scale(dpr, dpr);
     
     const minDim = Math.min(window.innerWidth, window.innerHeight);
-    // PC와 모바일에서 오목판 크기 밸런스 조정
     const isMobile = window.innerWidth <= 768;
     boardRect.size = isMobile ? minDim * 0.9 : minDim * 0.8; 
     
@@ -81,6 +75,18 @@ function drawStones() {
             }
         }
     }
+
+    if (winningStones.length > 0) {
+        ctx.save();
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 4;
+        winningStones.forEach(pos => {
+            ctx.beginPath();
+            ctx.arc(boardRect.x + pos.c * cellSize, boardRect.y + pos.r * cellSize, cellSize * 0.45, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+        ctx.restore();
+    }
 }
 
 function draw() {
@@ -94,11 +100,116 @@ function draw() {
 function switchTurn() {
     currentPlayer = currentPlayer === 1 ? 2 : 1;
     const scoreEl = document.getElementById("score");
-    scoreEl.innerText = `PLAYER ${currentPlayer} 차례`;
+    scoreEl.innerText = currentPlayer === 1 ? "PLAYER 1 차례" : "COMPUTER 차례";
     scoreEl.className = currentPlayer === 1 ? "p1-turn" : "p2-turn";
     document.getElementById("profile-p1").classList.toggle("active", currentPlayer === 1);
     document.getElementById("profile-p2").classList.toggle("active", currentPlayer === 2);
+    
     resetTimer();
+
+    if (currentPlayer === 2 && gameState === "PLAYING") {
+        setTimeout(makeComputerMove, 600); 
+    }
+}
+
+function makeComputerMove() {
+    if (gameState !== "PLAYING" || currentPlayer !== 2) return;
+    
+    // 실수 로직 추가: 약 15% 확률로 멍청한 수를 둠
+    const isBlunder = Math.random() < 0.15;
+    let targetR, targetC;
+
+    if (isBlunder) {
+        let emptyCells = [];
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (board[r][c] === 0) emptyCells.push({ r, c });
+            }
+        }
+        const blunderMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        targetR = blunderMove.r;
+        targetC = blunderMove.c;
+    } else {
+        // 원래의 스마트한 AI 로직
+        let bestScore = -1;
+        let bestMoves = [];
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (board[r][c] === 0) {
+                    let attackScore = evaluateMove(r, c, 2);
+                    let defenseScore = evaluateMove(r, c, 1);
+                    let totalScore = Math.max(attackScore, defenseScore * 0.95);
+
+                    if (totalScore > bestScore) {
+                        bestScore = totalScore;
+                        bestMoves = [{ r, c }];
+                    } else if (totalScore === bestScore) {
+                        bestMoves.push({ r, c });
+                    }
+                }
+            }
+        }
+        const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+        targetR = bestMove.r;
+        targetC = bestMove.c;
+    }
+    
+    if (targetR !== undefined) {
+        board[targetR][targetC] = 2;
+        if (checkWin(targetR, targetC)) {
+            draw();
+            setTimeout(() => showGameOver(2), 800);
+        } else {
+            switchTurn();
+            draw();
+        }
+    }
+}
+
+function evaluateMove(r, c, player) {
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    let totalValue = 0;
+    let openThreeCount = 0;
+
+    for (let [dr, dc] of dirs) {
+        let count = 1;
+        let blocked = 0;
+
+        for (let s of [1, -1]) {
+            let nr = r + dr * s, nc = c + dc * s;
+            while (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && board[nr][nc] === player) {
+                count++;
+                nr += dr * s;
+                nc += dc * s;
+            }
+            if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nr >= BOARD_SIZE || (board[nr][nc] !== 0 && board[nr][nc] !== player)) {
+                blocked++;
+            }
+        }
+
+        if (count >= 5) totalValue += 100000;
+        else if (count === 4) {
+            if (blocked === 0) totalValue += 10000;
+            else if (blocked === 1) totalValue += 5000;
+        }
+        else if (count === 3) {
+            if (blocked === 0) {
+                totalValue += 1000;
+                openThreeCount++;
+            }
+            else if (blocked === 1) totalValue += 500;
+        }
+        else if (count === 2) {
+            if (blocked === 0) totalValue += 100;
+        }
+    }
+
+    if (openThreeCount >= 2) {
+        return 0; 
+    }
+
+    return totalValue;
 }
 
 function resetTimer() {
@@ -116,18 +227,26 @@ function resetTimer() {
 
 function placeRandomStone() {
     if (gameState !== "PLAYING") return;
-    let emptyCells = [];
-    for (let r = 0; r < BOARD_SIZE; r++) {
-        for (let c = 0; c < BOARD_SIZE; c++) {
-            if (board[r][c] === 0) emptyCells.push({ r, c });
+    if (currentPlayer === 2) {
+        makeComputerMove();
+    } else {
+        let emptyCells = [];
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (board[r][c] === 0) emptyCells.push({ r, c });
+            }
         }
-    }
-    if (emptyCells.length > 0) {
-        const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        board[r][c] = currentPlayer;
-        if (checkWin(r, c)) showGameOver(currentPlayer);
-        else switchTurn();
-        draw();
+        if (emptyCells.length > 0) {
+            const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            board[r][c] = currentPlayer;
+            if (checkWin(r, c)) {
+                draw();
+                setTimeout(() => showGameOver(currentPlayer), 800);
+            } else {
+                switchTurn();
+                draw();
+            }
+        }
     }
 }
 
@@ -136,17 +255,23 @@ function handleInput(e) {
         startCharacterSelection(); 
         return; 
     }
-    if (gameState !== "PLAYING") return;
+    if (gameState !== "PLAYING" || currentPlayer === 2) return; 
+    
     const rect = canvas.getBoundingClientRect();
     const clientX = (e.clientX || (e.touches && e.touches[0].clientX));
     const clientY = (e.clientY || (e.touches && e.touches[0].clientY));
     const c = Math.round((clientX - rect.left - boardRect.x) / cellSize);
     const r = Math.round((clientY - rect.top - boardRect.y) / cellSize);
+    
     if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === 0) {
-        board[r][c] = currentPlayer;
-        if (checkWin(r, c)) showGameOver(currentPlayer);
-        else switchTurn();
-        draw();
+        board[r][c] = 1; 
+        if (checkWin(r, c)) {
+            draw();
+            setTimeout(() => showGameOver(1), 800);
+        } else {
+            switchTurn();
+            draw();
+        }
     }
 }
 
@@ -154,14 +279,18 @@ function checkWin(r, c) {
     const p = board[r][c];
     const dirs = [[0,1],[1,0],[1,1],[1,-1]];
     for (let [dr, dc] of dirs) {
-        let count = 1;
+        let line = [{ r, c }]; 
         for (let s of [1, -1]) {
             let nr = r + dr*s, nc = c + dc*s;
             while(nr>=0 && nr<BOARD_SIZE && nc>=0 && nc<BOARD_SIZE && board[nr][nc] === p) {
-                count++; nr += dr*s; nc += dc*s;
+                line.push({ r: nr, c: nc });
+                nr += dr*s; nc += dc*s;
             }
         }
-        if (count >= 5) return true;
+        if (line.length >= 5) {
+            winningStones = line; 
+            return true;
+        }
     }
     return false;
 }
@@ -170,6 +299,22 @@ function startCharacterSelection() {
     gameState = "SELECTING_P1";
     document.getElementById("start-overlay").classList.add("hidden");
     document.getElementById("char-select-overlay").classList.remove("hidden");
+
+    const allChars = ["1", "2", "3", "4"];
+    p2Char = allChars[Math.floor(Math.random() * allChars.length)];
+    
+    document.querySelectorAll(".char-item").forEach(item => {
+        const charId = item.querySelector(".char-option").getAttribute("data-id");
+        if (charId === p2Char) {
+            item.style.opacity = "0.3";
+            item.style.pointerEvents = "none";
+            item.style.filter = "grayscale(1)";
+        } else {
+            item.style.opacity = "1";
+            item.style.pointerEvents = "auto";
+            item.style.filter = "none";
+        }
+    });
 }
 
 document.getElementById("start-overlay").onclick = startCharacterSelection;
@@ -178,20 +323,19 @@ document.querySelectorAll(".char-option").forEach(el => {
     el.onclick = (e) => {
         e.stopPropagation();
         const id = el.getAttribute("data-id");
+        if (id === p2Char) return;
+
         if (gameState === "SELECTING_P1") {
             p1Char = id;
             document.getElementById("p1-display-img").src = `images/char${id}.png`;
-            el.parentElement.classList.add("selected-item");
-            gameState = "SELECTING_P2";
-            document.getElementById("select-subtitle").innerText = "플레이어 2의 캐릭터를 골라주세요.";
-        } else if (gameState === "SELECTING_P2") {
-            p2Char = id;
-            document.getElementById("p2-display-img").src = `images/char${id}.png`;
+            document.getElementById("p2-display-img").src = `images/char${p2Char}.png`;
+            
             document.getElementById("char-select-overlay").classList.add("hidden");
             document.getElementById("status-bar").classList.remove("hidden");
             document.getElementById("player-profiles").classList.remove("hidden");
             document.getElementById("bottom-timer-container").classList.remove("hidden");
             document.getElementById("profile-p1").classList.add("active");
+            
             gameState = "PLAYING";
             resetTimer();
             draw();
@@ -199,35 +343,19 @@ document.querySelectorAll(".char-option").forEach(el => {
     };
 });
 
-function startPenaltyRoulette() {
-    const penaltyText = document.getElementById("penalty-text");
-    let count = 0;
-    const maxCycles = 20; 
-    const interval = setInterval(() => {
-        penaltyText.innerText = penalties[Math.floor(Math.random() * penalties.length)];
-        count++;
-        if (count >= maxCycles) {
-            clearInterval(interval);
-            penaltyText.style.color = "#ff3e3e";
-            penaltyText.style.fontSize = "20px";
-        }
-    }, 100);
-}
-
 function showGameOver(winner) {
     gameState = "GAMEOVER";
     clearInterval(timerInterval);
     document.getElementById("winner-img").src = `images/char${winner === 1 ? p1Char : p2Char}.png`;
-    document.getElementById("winner-text").innerText = `PLAYER ${winner} WIN!`;
+    document.getElementById("winner-text").innerText = winner === 1 ? "YOU WIN!" : "COMPUTER WIN!";
     document.getElementById("gameover-overlay").classList.remove("hidden");
-    const pt = document.getElementById("penalty-text");
-    pt.style.color = "#333";
-    pt.style.fontSize = "18px";
-    startPenaltyRoulette();
 }
 
 document.getElementById("restart-btn").onclick = () => location.reload();
 window.addEventListener("resize", resizeCanvas);
 canvas.addEventListener("mousedown", handleInput);
-canvas.addEventListener("touchstart", (e) => { if (gameState === "PLAYING") e.preventDefault(); handleInput(e); }, {passive: false});
+canvas.addEventListener("touchstart", (e) => { 
+    if (gameState === "PLAYING" && currentPlayer === 1) e.preventDefault(); 
+    handleInput(e); 
+}, {passive: false});
 resizeCanvas();

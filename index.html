@@ -9,82 +9,44 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dongle:wght@300;400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="style.css" />
     <style>
-        /* --- [기존 스타일 복구 및 고정 배경 최적화] --- */
-        @import url('https://fonts.googleapis.com/css2?family=Dongle:wght@300;400;700&family=Gowun+Dodum&display=swap');
-
-        * { box-sizing: border-box; }
-
+        /* --- 화면 전체 구조 --- */
         :root {
             --border-width: clamp(8px, 3vw, 15px);
             --mint-color: #88D8C0;
             --soft-pink: #FFDDEB;
         }
 
-        body, html {
-            margin: 0; padding: 0;
-            font-family: 'Gowun Dodum', sans-serif;
-            height: 100%;
-            overflow: hidden; /* 전체 스크롤 방지 */
+        html {
             background-color: var(--mint-color);
-            -webkit-font-smoothing: antialiased;
-            cursor: url('kyodong_cursor.png') 32 32, auto;
+            height: 100%;
+            overflow: hidden;
         }
 
-        /* [핵심] 배경 짤림 방지용 고정 레이어 */
-        .bg-fixed-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('background.png') no-repeat center center;
-            background-size: cover;
-            z-index: 0;
-            pointer-events: none;
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
         }
 
-        /* [핵심] 기존 레이아웃을 유지하는 컨테이너 */
         .outer-frame {
-            position: relative;
-            z-index: 1;
             width: calc(100% - (var(--border-width) * 2));
             height: calc(100% - (var(--border-width) * 2));
-            margin: var(--border-width);
-            background-color: rgba(255, 255, 255, 0.9); /* 배경이 보이도록 약간 투명하게 설정 */
+            background-color: white;
             border-radius: clamp(25px, 5vw, 40px);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            position: relative;
         }
 
-        img { max-width: 100%; height: auto; object-fit: contain; image-rendering: -webkit-optimize-contrast; }
-        button, a, .header-char, .game-card, .game-entry, #info-btn, .mode-btn, .share-btn { cursor: url('kyodong_cursor.png') 32 32, pointer; }
-
-        /* --- 로딩 화면 --- */
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: white; display: flex; justify-content: center; align-items: center;
-            z-index: 1000; transition: opacity 0.5s;
-        }
-        .loader-content { text-align: center; font-family: 'Dongle', sans-serif; font-size: 32px; color: #45B191; }
-        .running-kyodon { height: clamp(60px, 15vh, 100px); animation: loaderBounce 0.5s infinite alternate; margin-bottom: 10px; }
-        @keyframes loaderBounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
-        #loading-screen.fade-out { opacity: 0; pointer-events: none; }
-
-        /* --- 비눗방울 배경 --- */
-        #bubble-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .bubble {
-            position: absolute; bottom: -50px; background: rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 50%; pointer-events: auto;
-            animation: floatUp linear infinite;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(-110vh) translateX(30px); opacity: 0; }
-        }
-
-        /* --- 헤더 (기존 디자인 유지) --- */
+        /* --- 헤더 --- */
         .white-header {
             background-color: #ffffff; 
             min-height: 110px;
@@ -92,86 +54,142 @@
             display: flex; justify-content: center; align-items: center;
             border-bottom: 2px solid #f0f0f0;
             flex-shrink: 0;
-            z-index: 10;
         }
-        .header-content { display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; max-width: 600px; gap: clamp(10px, 3vw, 30px); }
+
+        .header-content { 
+            display: flex; flex-direction: row; align-items: center; justify-content: center;
+            width: 100%; max-width: 600px; gap: clamp(10px, 3vw, 30px); 
+        }
+
         .char-container { position: relative; display: flex; align-items: center; flex-shrink: 0; }
+        
         .speech-bubble {
-            position: absolute; right: 105%; top: 50%; transform: translateY(-50%);
-            background: white; border: 2px solid #45B191; padding: 4px 12px; border-radius: 18px; 
-            font-family: 'Dongle', sans-serif; font-size: clamp(18px, 4vw, 24px); 
-            color: #333; opacity: 0; transition: opacity 0.5s ease; z-index: 20;
-            width: max-content; max-width: 120px; text-align: center; line-height: 1.1;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); pointer-events: none; word-break: keep-all; 
+            position: absolute; 
+            right: 105%; 
+            top: 50%;
+            transform: translateY(-50%);
+            background: white; 
+            border: 2px solid #45B191;
+            padding: 4px 12px; 
+            border-radius: 18px; 
+            font-family: 'Dongle', sans-serif; 
+            font-size: clamp(18px, 4vw, 24px); 
+            color: #333; 
+            opacity: 0; 
+            transition: opacity 0.5s ease;
+            z-index: 20;
+            width: max-content; 
+            max-width: 120px; 
+            text-align: center;
+            line-height: 1.1;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            pointer-events: none;
+            word-break: keep-all; 
         }
-        .speech-bubble::after { content: ''; position: absolute; left: 100%; top: 50%; transform: translateY(-50%); border-left: 8px solid #45B191; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 8px solid #45B191;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
         .header-char { height: clamp(65px, 10vh, 90px); width: auto; cursor: pointer; transition: transform 0.2s; z-index: 21; }
-        .title-wrapper { background: rgba(136, 216, 192, 0.1); padding: 5px clamp(15px, 4vw, 25px); border-radius: 40px; display: flex; align-items: center; }
+
+        .title-wrapper {
+            background: rgba(136, 216, 192, 0.1); padding: 5px clamp(15px, 4vw, 25px);
+            border-radius: 40px; display: flex; align-items: center;
+        }
+
         .main-title {
             font-family: 'Dongle', sans-serif; font-size: clamp(28px, 7vw, 55px); color: white; 
             margin: 0; line-height: 1; -webkit-text-stroke: 1.5px #45B191; paint-order: stroke fill;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1); white-space: nowrap;
         }
 
-        /* --- 게임 선택 영역 (기존 디자인 유지) --- */
-        .game-section { flex: 1 0 auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-        .village-map { 
-            display: flex; gap: clamp(20px, 5vw, 40px); 
-            justify-content: center; flex-wrap: wrap; width: 100%;
-        }
-        .game-card {
-            width: clamp(150px, 40vw, 260px); 
-            height: clamp(210px, 50vh, 320px);
-            background: rgba(255, 255, 255, 0.95);
-            border: clamp(4px, 1vw, 6px) solid #88D8C0; border-radius: clamp(30px, 5vw, 50px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: all 0.2s; position: relative; box-shadow: 0 12px 0px #6eb9a2;
-        }
-        .game-card:hover { transform: translateY(6px); box-shadow: 0 6px 0px #6eb9a2; }
-        .game-icon { width: 50%; height: auto; max-height: 90px; margin-bottom: 10px; }
-        .large-icon { width: 52% !important; max-height: 90px !important; }
-        .game-card h2 { font-size: clamp(20px, 5vw, 32px); margin: 10px 0 0; color: #333; }
-        .game-card p { font-size: clamp(14px, 3vw, 18px); color: #777; margin: 0; }
-        .game-badge { position: absolute; top: -15px; background: #FFB7C5; color: white; padding: 5px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; border: 3px solid white; }
-        .game-entry.locked { pointer-events: none; filter: grayscale(0.8); opacity: 0.7; }
-        .lock-icon { font-size: clamp(30px, 8vw, 50px); margin-bottom: 10px; }
+        /* --- 메인 및 푸터 --- */
+        .game-section { flex: 1 0 auto; padding: 20px 0; }
 
-        /* --- 푸터 --- */
-        .main-footer { padding: 30px 15px; text-align: center; background-color: #ffffff; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+        /* 기본 아이콘 크기 */
+        .game-icon { 
+            width: 50%; 
+            height: auto; 
+            max-height: 90px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+
+        /* 사유리 구하기 이미지 크기 수정 (일방적으로 커보이지 않게 조정) */
+        .large-icon {
+            width: 52% !important; 
+            max-height: 90px !important;
+        }
+
+        .main-footer { padding: 30px 15px; text-align: center; background-color: #fcfdfd; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
         .share-container { width: 100%; max-width: 280px; margin: 0 auto 10px auto; }
-        .share-btn { width: 100%; background-color: var(--soft-pink); color: #d687a7; border: none; padding: 12px; border-radius: 20px; font-family: 'Gowun Dodum', sans-serif; font-size: 15px; font-weight: bold; box-shadow: 0 4px 0px #f2c9db; transition: all 0.2s; }
+        
+        .share-btn {
+            width: 100%; 
+            background-color: var(--soft-pink); 
+            color: #d687a7;
+            border: none;
+            padding: 12px; 
+            border-radius: 20px; 
+            font-family: 'Gowun Dodum', sans-serif;
+            font-size: 15px; 
+            font-weight: bold; 
+            cursor: pointer;
+            box-shadow: 0 4px 0px #f2c9db;
+            transition: all 0.2s;
+        }
         .share-btn:active { transform: translateY(2px); box-shadow: 0 2px 0px #f2c9db; }
         .copyright { font-size: 11px; color: #ccc; margin: 0; }
 
-        /* --- 모달 공통 --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .hidden { display: none !important; }
-        .modal-content { background: white; padding: 30px; border-radius: 50px; width: 90%; max-width: 350px; text-align: center; border: 6px solid #88D8C0; }
-        .modal-buttons { display: flex; flex-direction: column; gap: 15px; }
-        .mode-btn { text-decoration: none; font-size: 24px; padding: 12px; border-radius: 25px; color: white; font-weight: bold; transition: 0.2s; display: block; }
-        .easy { background: #88D8C0; box-shadow: 0 6px 0 #6eb9a2; }
-        .hard { background: #FFB7C5; box-shadow: 0 6px 0 #e8a2af; }
-        .close-modal-text { margin-top: 10px; background: none; border: none; color: #aaa; font-size: 16px; font-family: 'Gowun Dodum'; text-decoration: underline; }
+        /* --- 교동운세 팝업 --- */
+        .fortune-popup {
+            background-color: #ffffff; 
+            padding: 25px; 
+            border-radius: 35px;
+            width: 85%; 
+            max-width: 320px; 
+            text-align: center; 
+            border: 5px solid var(--mint-color);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .fortune-card { 
+            background: #f0f9f7; 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border: 2px dashed var(--mint-color); 
+        }
+        .fortune-text { 
+            font-family: 'Dongle', sans-serif; 
+            font-size: 28px; 
+            color: #333; 
+            line-height: 1.2; 
+            white-space: pre-line;
+        }
+        .fortune-lucky-item { 
+            font-size: 15px; 
+            color: #45B191; 
+            margin-top: 10px; 
+            font-weight: bold; 
+        }
 
-        /* --- 방명록 & 운세 --- */
-        .guestbook-popup, .fortune-popup { background: white; padding: 25px; border-radius: 40px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .guestbook-popup { border: 6px solid #FFB7C5; }
-        .fortune-popup { border: 5px solid var(--mint-color); }
-        .fortune-card { background: #f0f9f7; border-radius: 20px; padding: 20px; margin: 15px 0; border: 2px dashed var(--mint-color); }
-        .fortune-text { font-family: 'Dongle', sans-serif; font-size: 28px; color: #333; line-height: 1.2; white-space: pre-line; }
-        .fortune-lucky-item { font-size: 15px; color: #45B191; margin-top: 10px; font-weight: bold; }
-        .message-list { max-height: 200px; overflow-y: auto; text-align: left; background: #fffcfd; border-radius: 15px; padding: 10px; }
-        .msg-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
-        .guestbook-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-        .guestbook-form input { border: 2px solid #eee; padding: 10px; border-radius: 15px; outline: none; font-family: 'Gowun Dodum'; }
-        .guestbook-form button { background: #FFB7C5; color: white; border: none; padding: 10px; border-radius: 15px; font-weight: bold; }
-        
-        #info-btn { position: fixed; bottom: 20px; right: 20px; width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: #FFB7C5; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: clamp(25px, 6vw, 35px); border: 4px solid white; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        .notice-text { font-size: 12px; color: #999; margin-bottom: 10px; }
+
+        @media (max-width: 480px) {
+            .speech-bubble { font-size: 18px; max-width: 90px; }
+        }
     </style>
 </head>
 <body>
-
-    <div class="bg-fixed-layer"></div>
 
     <div id="loading-screen">
         <div class="loader-content">
@@ -244,12 +262,14 @@
     <div id="guestbook-modal" class="modal-overlay hidden">
         <div class="guestbook-popup">
             <h3>🩵교동이에게 한마디🩵</h3>
+            <p class="notice-text">* 댓글은 최대 3개까지 표시됩니다.</p>
             <div class="guestbook-form">
                 <input type="text" id="nickname" placeholder="닉네임" maxlength="5">
                 <input type="text" id="message" placeholder="메시지 입력" onkeypress="if(event.keyCode==13) addMessage()">
                 <button onclick="addMessage()">등록</button>
             </div>
             <div id="message-list" class="message-list">로딩 중...</div>
+            <button id="load-more-btn" class="load-more-btn hidden" style="display:none;" onclick="renderMessages(true)">이전 댓글 더보기 ▽</button>
             <button class="close-modal-text" onclick="closeGuestbook()">닫기</button>
         </div>
     </div>
@@ -278,6 +298,7 @@
         function openModal(gameType) { 
             const easyLink = document.getElementById('easy-link');
             const hardLink = document.getElementById('hard-link');
+
             if(gameType === 'bounce-ball') {
                 easyLink.href = "./game/bounce-ball/index.html";
                 hardLink.href = "./game/bounce-ball-hard/index.html";
@@ -285,6 +306,7 @@
                 easyLink.href = "./game/get-sayuri/index.html";
                 hardLink.href = "./game/get-sayuri-hard/index.html"; 
             }
+
             document.getElementById('game-modal').classList.remove('hidden'); 
         }
 
@@ -344,13 +366,19 @@
 
         function renderMessages(showFull) {
             const list = document.getElementById('message-list');
+            const moreBtn = document.getElementById('load-more-btn');
             const data = window.allMessages || [];
+            
             if(data.length === 0) {
                 list.innerHTML = `<div style="padding:20px; color:#aaa; text-align:center;">메시지를 남겨보세요!</div>`;
                 return;
             }
+
             const reversed = [...data].reverse();
             const displayMessages = reversed.slice(0, 3);
+            
+            if(moreBtn) moreBtn.style.display = 'none';
+            
             list.innerHTML = displayMessages.map(m => `
                 <div class="msg-item">
                     <span><strong>${m.nickname}</strong>: ${m.message || m.text}</span>
@@ -364,7 +392,9 @@
             const nick = nickInput.value.trim();
             const msg = msgInput.value.trim();
             if(!nick || !msg) return;
+
             const newMsg = { id: Date.now(), nickname: nick, message: msg };
+            
             try {
                 document.getElementById('message-list').innerHTML = "등록 중...";
                 await fetch(SCRIPT_URL, {
@@ -373,7 +403,10 @@
                 });
                 nickInput.value = ''; msgInput.value = '';
                 fetchMessages();
-            } catch (e) { fetchMessages(); }
+            } catch (e) {
+                alert("등록 실패! URL 설정을 확인하세요.");
+                fetchMessages();
+            }
         }
 
         window.onclick = function(event) {

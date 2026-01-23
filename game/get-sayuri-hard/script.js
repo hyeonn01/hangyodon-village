@@ -5,8 +5,14 @@ const ctx = canvas.getContext("2d");
 let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas() {
+  // 물리적 픽셀 크기 설정
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
+  
+  // CSS 표시 크기 고정 (확대 방지 핵심)
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  
   ctx.scale(dpr, dpr);
   
   if (player) {
@@ -34,7 +40,7 @@ const keys = { Left: false, Right: false };
 const player = {
   x: window.innerWidth / 2 - 65, y: window.innerHeight - 150,
   width: 130, height: 110, speed: 15, targetX: window.innerWidth / 2 - 65, isDragging: false,
-  keySpeed: 8 
+  keySpeed: 10 // 키보드 이동 속도도 약간 상향
 };
 
 resizeCanvas();
@@ -64,7 +70,7 @@ const startOverlay = document.getElementById("start-overlay");
 const gameOverModal = document.getElementById("gameover-overlay");
 
 function drawInitial() {
-  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   ctx.drawImage(hangyodonImg, player.x, player.y, player.width, player.height);
 }
 
@@ -174,10 +180,10 @@ async function updateRanking() {
 
 function showGameOver() {
   gameOver = true;
-  const best = localStorage.getItem("sayuri_best") || 0;
-  if (score > parseInt(best)) localStorage.setItem("sayuri_best", score);
+  const best = localStorage.getItem("sayuri_best_hard") || 0;
+  if (score > parseInt(best)) localStorage.setItem("sayuri_best_hard", score);
   document.getElementById("final-score").innerText = score;
-  document.getElementById("best-score").innerText = localStorage.getItem("sayuri_best");
+  document.getElementById("best-score").innerText = localStorage.getItem("sayuri_best_hard") || score;
   gameOverModal.classList.remove("hidden");
   updateRanking();
 }
@@ -202,7 +208,7 @@ function update(timestamp) {
   lastTime = timestamp;
   const timeFactor = deltaTime / 16.67;
   
-  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   if (player.isDragging) {
     player.x += (player.targetX - player.x) * 0.25 * timeFactor;
@@ -213,12 +219,12 @@ function update(timestamp) {
   
   player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
 
-  // --- 하드모드 로직 적용 구간 ---
-  // 1. 스폰 간격: 점수가 오를수록 더 빨리 떨어짐 (최소 200ms까지 단축)
-  const spawnInterval = Math.max(200, 500 - (score / 5)); 
+  // --- 하드모드 난이도 가속 로직 ---
+  // 이지보다 더 빠르고 빈번하게 스폰
+  const spawnInterval = Math.max(180, 450 - (score / 4)); 
   if (timestamp - lastSpawnTime > spawnInterval) {
-    // 2. 문어 확률: 점수가 오를수록 문어 확률 증가 (최대 40% 확률)
-    const octopusProb = Math.min(0.4, 0.15 + (score / 2000));
+    // 문어 확률이 빠르게 증가 (최대 45%)
+    const octopusProb = Math.min(0.45, 0.20 + (score / 1500));
     const isOctopus = Math.random() < octopusProb;
     
     items.push({ 
@@ -226,13 +232,12 @@ function update(timestamp) {
       y: -80, 
       width: isOctopus ? 50 : 80, 
       height: isOctopus ? 50 : 80, 
-      // 3. 속도 증가: 기본 속도 3.5에서 시작하여 점수당 더 빠르게 가속
-      speed: 3.5 + (score / 250), 
+      // 초기 하강 속도 상향 및 가속도 증가
+      speed: 4.0 + (score / 200), 
       type: isOctopus ? "octopus" : "normal" 
     });
     lastSpawnTime = timestamp;
   }
-  // ----------------------------
 
   for (let i = items.length - 1; i >= 0; i--) {
     const it = items[i];
@@ -274,7 +279,9 @@ function update(timestamp) {
   if (inkEffectTimer > 0) {
     ctx.save(); 
     ctx.globalAlpha = Math.min(0.8, inkEffectTimer / 30);
-    ctx.drawImage(inkImg, (window.innerWidth - 650) / 2, (window.innerHeight - 450) / 2, 650, 450);
+    const inkW = Math.min(650, window.innerWidth * 0.9);
+    const inkH = inkW * 0.7;
+    ctx.drawImage(inkImg, (window.innerWidth - inkW) / 2, (window.innerHeight - inkH) / 2, inkW, inkH);
     ctx.restore(); 
     inkEffectTimer -= 1 * timeFactor;
   }

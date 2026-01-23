@@ -2,12 +2,21 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
   <title>사유리 구하기!</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 캔버스 확대 방지를 위한 핵심 스타일 */
+    #gameCanvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      touch-action: none; /* 모바일 브라우저 기본 제스처 방지 */
+    }
+  </style>
 </head>
 <body>
   <div id="game-container">

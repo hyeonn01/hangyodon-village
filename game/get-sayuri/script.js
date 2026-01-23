@@ -5,11 +5,16 @@ const ctx = canvas.getContext("2d");
 let dpr = window.devicePixelRatio || 1;
 
 function resizeCanvas() {
+  // 1. 캔버스의 물리적 해상도 설정 (DPR 반영)
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
+  
+  // 2. 캔버스의 스타일 크기 고정 (화면 확대 방지 핵심)
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  
   ctx.scale(dpr, dpr);
   
-  // 창 크기가 바뀔 때 플레이어 위치가 화면 밖으로 나가지 않게 보정
   if (player) {
     player.y = window.innerHeight - 150;
     player.x = Math.max(0, Math.min(window.innerWidth - player.width, player.x));
@@ -38,7 +43,7 @@ const player = {
   keySpeed: 8 
 };
 
-// 캔버스 초기 설정 및 창 크기 변경 이벤트 리스너 추가
+// 초기 설정
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
@@ -66,7 +71,7 @@ const startOverlay = document.getElementById("start-overlay");
 const gameOverModal = document.getElementById("gameover-overlay");
 
 function drawInitial() {
-  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   ctx.drawImage(hangyodonImg, player.x, player.y, player.width, player.height);
 }
 
@@ -204,7 +209,7 @@ function update(timestamp) {
   lastTime = timestamp;
   const timeFactor = deltaTime / 16.67;
   
-  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   if (player.isDragging) {
     player.x += (player.targetX - player.x) * 0.25 * timeFactor;
@@ -268,7 +273,10 @@ function update(timestamp) {
   if (inkEffectTimer > 0) {
     ctx.save(); 
     ctx.globalAlpha = Math.min(0.8, inkEffectTimer / 30);
-    ctx.drawImage(inkImg, (window.innerWidth - 650) / 2, (window.innerHeight - 450) / 2, 650, 450);
+    // 먹물 크기를 화면 너비에 맞춰 조정 (가변형)
+    const inkW = Math.min(650, window.innerWidth * 0.9);
+    const inkH = inkW * 0.7;
+    ctx.drawImage(inkImg, (window.innerWidth - inkW) / 2, (window.innerHeight - inkH) / 2, inkW, inkH);
     ctx.restore(); 
     inkEffectTimer -= 1 * timeFactor;
   }

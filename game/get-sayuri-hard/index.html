@@ -2,12 +2,21 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>사유리 구하기!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
+  <title>사유리 구하기! - HARD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 모바일 확대 방지 및 캔버스 꽉 차게 설정 */
+    #gameCanvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      touch-action: none;
+    }
+  </style>
 </head>
 <body>
   <div id="game-container">
@@ -25,27 +34,27 @@
 
     <div id="modal-overlay" class="overlay hidden">
       <div id="modal-content">
-        <h2 style="color: #2c3e50; margin-bottom: 20px;">게임 방법</h2>
+        <h2 style="color: #c0392b; margin-bottom: 20px;">🔥 하드 모드 가이드</h2>
         <div class="info-box">
           <p style="margin: 0; line-height: 2.2; font-size: 1.1rem; color: #444; text-align: center;">
-            하늘에서 떨어지는<br>
+            <strong>훨씬 빠르게</strong> 떨어지는 친구들!<br>
             <img src="images/sayuri.png" width="30" style="vertical-align: middle; margin: 0 2px;">
             <strong>사유리</strong>와
             <img src="images/octopus.png" width="25" style="vertical-align: middle; margin: 0 2px;">
             <strong>문어</strong>를<br>
-            잘 구분하여 받아주세요
+            빛의 속도로 구분하세요!
           </p>
-          <p style="margin-top: 15px; font-size: 1rem; color: #666; text-align: center;">
-            문어를 받을 경우 <span style="color: #e74c3c; font-weight: bold;">먹물</span>을 맞게 됩니다!
+          <p style="margin-top: 15px; font-size: 1rem; color: #e74c3c; text-align: center; font-weight: bold;">
+            ※ 속도와 문어 확률이 빠르게 증가합니다.
           </p>
         </div>
-        <button id="close-btn">준비됐어요!</button>
+        <button id="close-btn" style="background-color: #c0392b;">도전 시작!</button>
       </div>
     </div>
 
     <div id="start-overlay" class="overlay hidden">
       <div class="start-content">
-        <div id="start-title">친구 구하기 !</div>
+        <div id="start-title" style="color: #e74c3c;">HARD MODE</div>
         <p class="start-subtext">화면을 클릭하면 시작합니다</p>
       </div>
     </div>
@@ -68,10 +77,10 @@
           </div>
         </div>
         <div id="ranking-box">
-          <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">🏆 실시간 TOP 5</h3>
+          <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">🏆 하드 랭킹 TOP 5</h3>
           <div id="ranking-list">점수 기록 중...</div>
         </div>
-        <button id="restart-btn">다시 시작하기</button>
+        <button id="restart-btn">다시 도전하기</button>
       </div>
     </div>
 

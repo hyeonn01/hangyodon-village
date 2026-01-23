@@ -18,21 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let flippedCards = [];
     let matchedPairs = 0;
     let canFlip = false; 
+    let isGameRunning = false; // [추가] 게임이 실제 진행 중인지 확인하는 변수
     let userNickname = localStorage.getItem("sayuri_nickname");
     let hasSeenGuide = sessionStorage.getItem("sayuri_guide_seen");
 
-    // 난이도 조정을 위해 시간을 단축했습니다.
     const levelSettings = [
-        { rows: 2, cols: 2, pairs: 2, time: 6 },   // 10 -> 6
-        { rows: 2, cols: 3, pairs: 3, time: 10 },  // 15 -> 10
-        { rows: 2, cols: 4, pairs: 4, time: 14 },  // 20 -> 14
-        { rows: 3, cols: 4, pairs: 6, time: 22 },  // 30 -> 22
-        { rows: 4, cols: 4, pairs: 8, time: 30 },  // 40 -> 30
-        { rows: 4, cols: 5, pairs: 10, time: 38 }, // 50 -> 38
-        { rows: 4, cols: 6, pairs: 12, time: 48 }, // 60 -> 48
-        { rows: 5, cols: 6, pairs: 15, time: 65 }, // 80 -> 65
-        { rows: 6, cols: 6, pairs: 18, time: 80 }, // 100 -> 80
-        { rows: 6, cols: 6, pairs: 18, time: 60 }  // 80 -> 60 (최종 보스 단계)
+        { rows: 2, cols: 2, pairs: 2, time: 6 },
+        { rows: 2, cols: 3, pairs: 3, time: 10 },
+        { rows: 2, cols: 4, pairs: 4, time: 14 },
+        { rows: 3, cols: 4, pairs: 6, time: 22 },
+        { rows: 4, cols: 4, pairs: 8, time: 30 },
+        { rows: 4, cols: 5, pairs: 10, time: 38 },
+        { rows: 4, cols: 6, pairs: 12, time: 48 },
+        { rows: 5, cols: 6, pairs: 15, time: 65 },
+        { rows: 6, cols: 6, pairs: 18, time: 80 },
+        { rows: 6, cols: 6, pairs: 18, time: 60 }
     ];
 
     const imagePaths = Array.from({ length: 18 }, (_, i) => `images/card${i + 1}.png`);
@@ -57,16 +57,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // [수정] 도움말 닫기 버튼 로직
     document.getElementById("close-btn").onclick = () => {
         infoModal.classList.add("hidden");
-        sessionStorage.setItem("sayuri_guide_seen", "true");
-        hasSeenGuide = "true";
-        startOverlay.classList.remove("hidden");
+        
+        // 가이드를 처음 보는 경우에만 시작 화면을 보여줌
+        if (!hasSeenGuide) {
+            sessionStorage.setItem("sayuri_guide_seen", "true");
+            hasSeenGuide = "true";
+            startOverlay.classList.remove("hidden");
+        }
+        // 이미 게임 중이거나 시작 화면을 본 적이 있다면 아무것도 하지 않음 (즉시 게임 화면 유지)
     };
 
     startOverlay.onclick = () => {
         if (!startOverlay.classList.contains("hidden")) {
             startOverlay.classList.add("hidden");
+            isGameRunning = true; // 게임 시작 상태로 변경
             startLevel();
         }
     };
@@ -84,11 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setupBoard(setting);
 
-        // [수정] 카드 앞면 먼저 보여주기
         const allCards = document.querySelectorAll('.card');
         allCards.forEach(card => card.classList.add('flipped'));
 
-        // [수정] 앞면이 보이는 상태에서 3초 카운트다운 시작
         countdownOverlay.classList.remove("hidden");
         let count = 3;
         countdownText.innerText = count;
@@ -101,10 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(countInterval);
                 countdownOverlay.classList.add("hidden");
                 
-                // 카드 다시 덮기
                 allCards.forEach(card => card.classList.remove('flipped'));
                 
-                // 카드 뒤집히는 애니메이션(0.4s) 대기 후 게임 시작
                 setTimeout(() => {
                     canFlip = true; 
                     startTimer();
@@ -185,6 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(timerInterval);
         const interval = 100; 
         timerInterval = setInterval(() => {
+            // [수정] 도움말 창이 떠있을 때는 시간이 흐르지 않도록 방어 로직 추가
+            if (!infoModal.classList.contains("hidden")) return;
+
             timeLeft -= (interval / 1000);
             updateTimerBar();
 
@@ -207,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showClear() {
+        isGameRunning = false; // 레벨 클리어 시 상태 초기화
         if (currentLevel >= 10) {
             document.getElementById('clear-title').innerText = "ALL CLEAR! ✨";
             document.getElementById('clear-msg').innerText = "최고의 짝 맞추기 왕입니다!";
@@ -218,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nextBtn.onclick = () => {
                 clearOverlay.classList.add("hidden");
                 currentLevel++;
+                isGameRunning = true;
                 startLevel();
             };
         }
@@ -225,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showGameOver() {
+        isGameRunning = false;
         gameOverModal.classList.remove("hidden");
     }
 

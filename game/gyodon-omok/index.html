@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
+  <title>한교동 오목 대전</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <div id="status-bar" class="hidden">
+      <div id="score">PLAYER 1 차례</div>
+    </div>
+
+    <div id="player-profiles" class="hidden">
+      <div id="profile-p1" class="profile">
+        <div class="char-circle"><img id="p1-display-img" src=""></div>
+        <div class="player-label">Player 1</div>
+      </div>
+      <div id="profile-p2" class="profile">
+        <div class="char-circle"><img id="p2-display-img" src=""></div>
+        <div class="player-label">Player 2</div>
+      </div>
+    </div>
+
+    <div id="bottom-timer-container" class="hidden">
+      <div id="timer-bar"></div>
+    </div>
+
+    <div id="start-overlay" class="overlay">
+      <div class="start-content">
+        <div id="start-title">한교동 오목 !</div>
+        <p class="start-subtext">화면을 클릭하여 시작합니다</p>
+      </div>
+    </div>
+
+    <div id="char-select-overlay" class="overlay hidden">
+      <div id="modal-content">
+        <h2 class="modal-title">캐릭터 선택</h2>
+        <p id="select-subtitle">플레이어 1의 캐릭터를 골라주세요.</p>
+        <div class="char-list">
+          <div class="char-item"><img src="images/char1.png" class="char-option" data-id="1"></div>
+          <div class="char-item"><img src="images/char2.png" class="char-option" data-id="2"></div>
+          <div class="char-item"><img src="images/char3.png" class="char-option" data-id="3"></div>
+          <div class="char-item"><img src="images/char4.png" class="char-option" data-id="4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden">
+      <div id="gameover-content">
+        <h2 class="gameover-title">승리!</h2>
+        <div class="winner-display">
+          <div class="winner-circle-large">
+            <img id="winner-img" src="" alt="winner">
+          </div>
+          <p id="winner-text">PLAYER 1 WIN!</p>
+        </div>
+        
+        <div id="penalty-container">
+          <p class="penalty-label">💀 패배자 벌칙 💀</p>
+          <div id="penalty-slot">
+            <span id="penalty-text">룰렛 돌리는 중...</span>
+          </div>
+        </div>
+
+        <button id="restart-btn">다시 시작</button>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

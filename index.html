@@ -230,14 +230,18 @@
                 </div>
                 <div class="game-entry" onclick="location.href='./game/card-match/index.html'">
                     <div class="game-card">
-                        <div class="game-badge" style="background: #A0E7E5;">NEW</div>
                         <img src="card-match.png" alt="카드맞추기" class="game-icon">
                         <h2>카드 맞추기</h2>
                         <p>똑같은 카드 찾기!</p>
                     </div>
                 </div>
-                <div class="game-entry locked">
-                    <div class="game-card"><div class="lock-icon">🔒</div><h2>준비 중</h2><p>Coming Soon</p></div>
+                <div class="game-entry" onclick="location.href='./game/gyodon-omok/index.html'">
+                    <div class="game-card">
+                        <div class="game-badge" style="background: #A0E7E5;">NEW</div>
+                        <img src="sanrio.png" alt="산리오 오목" class="game-icon">
+                        <h2>산리오 오목</h2>
+                        <p>2인용 멀티게임</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -290,6 +294,7 @@
     <div id="info-btn" onclick="openGuestbook()">❤</div>
 
     <script>
+        // ... (기존 script 로직 동일하게 유지)
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhFIa0igBqaHTaIwYrsCgKMnE3TBKsYfhwPGXipEs7JmaoVHBg4rwPSoW8G7RZOIc4wg/exec';
 
         window.addEventListener('load', () => {

@@ -1,0 +1,78 @@
+:root {
+  --main-blue: #92D1E5;
+  --soft-pink: #FFB7C5;
+  --mint-green: #A2E4B8;
+  --bg-color: #E0F2F1;
+}
+
+body { margin: 0; padding: 0; overflow: hidden; font-family: 'Gowun Dodum', sans-serif; background-color: var(--bg-color); overscroll-behavior: none; }
+#game-container { position: relative; width: 100vw; height: 100vh; background-color: var(--bg-color); }
+
+/* 프로필 UI */
+#player-profiles { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; pointer-events: none; transform: translateY(-50%); z-index: 5; box-sizing: border-box; }
+.profile { display: flex; flex-direction: column; align-items: center; transition: all 0.4s ease; opacity: 0.5; }
+.profile.active { transform: scale(1.3); opacity: 1; }
+
+#profile-p1 .char-circle { background: var(--mint-green); }
+#profile-p2 .char-circle { background: var(--soft-pink); }
+
+.char-circle { width: 75px; height: 75px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.char-circle img { width: 55px; height: 55px; object-fit: contain; }
+.player-label { margin-top: 8px; font-weight: bold; color: #555; font-size: 14px; text-shadow: 1px 1px 2px white; }
+
+/* 상단 텍스트 및 하단 타이머 */
+#status-bar { position: absolute; top: 30px; width: 100%; display: flex; justify-content: center; z-index: 10; }
+#score { background: rgba(255, 255, 255, 0.9); padding: 10px 30px; border-radius: 50px; font-size: 18px; font-weight: bold; border: 3px solid var(--main-blue); transition: all 0.3s; }
+#score.p1-turn { color: var(--main-blue); border-color: var(--main-blue); }
+#score.p2-turn { color: var(--soft-pink); border-color: var(--soft-pink); }
+#bottom-timer-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 18px; background: rgba(0,0,0,0.1); z-index: 10; }
+#timer-bar { width: 100%; height: 100%; background: var(--mint-green); transition: width 0.1s linear; }
+
+/* 캐릭터 선택 모달 박스 */
+#modal-content { 
+  background: white; 
+  padding: 30px; 
+  border-radius: 30px; 
+  text-align: center; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  max-width: 90%;
+}
+.modal-title { margin-top: 0; color: #333; }
+#select-subtitle { color: #666; margin-bottom: 20px; }
+
+/* 게임오버 및 벌칙 슬롯 */
+#gameover-content { background: white; padding: 30px; border-radius: 30px; text-align: center; width: 280px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+.winner-circle-large { width: 100px; height: 100px; background: #f0fdf4; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; border: 4px solid var(--mint-green); }
+.winner-circle-large img { width: 70px; height: 70px; object-fit: contain; }
+
+#penalty-container {
+  margin: 15px 0 20px 0;
+  padding: 10px;
+  background: #fff5f5;
+  border: 2px dashed #ff8787;
+  border-radius: 15px;
+}
+.penalty-label { font-size: 12px; font-weight: bold; color: #ff6b6b; margin-bottom: 5px; }
+#penalty-slot {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  min-height: 24px;
+  transition: all 0.1s;
+}
+
+#restart-btn { background: var(--main-blue); color: white; border: none; padding: 12px 0; width: 100%; font-size: 16px; font-weight: bold; border-radius: 15px; cursor: pointer; }
+
+/* 오버레이 */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
+.start-content { text-align: center; }
+#start-title { font-size: 40px; color: white; font-weight: bold; margin-bottom: 10px; }
+.start-subtext { color: white; opacity: 0.8; font-size: 1.2rem; }
+
+.char-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.char-item { background: #f9f9f9; border-radius: 20px; padding: 10px; border: 2px solid transparent; transition: 0.2s; }
+.selected-item { border-color: var(--main-blue); background: #eefbff; }
+.char-option { width: 60px; height: 60px; object-fit: contain; cursor: pointer; }
+
+.hidden { display: none !important; }
+#gameCanvas { width: 100vw; height: 100vh; display: block; }

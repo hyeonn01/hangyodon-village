@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc010aHZi_09j_ZDbWG6AxCK8LgbexuyaOlVnRsrrrI4nqJJGncbpqyZeWt-lTPvGv/exec"; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyb2k-mY_bAr4aOpnQFlDgkSizSq1rOAg7CECQKWZ7qznv6w6x8vJGsLhcXx-ZIzTqG/exec"; 
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");

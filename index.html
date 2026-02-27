@@ -114,6 +114,17 @@
 
         /* --- 게임 섹션 --- */
         .game-section { flex: 1 0 auto; padding: 20px 0; }
+        
+        /* 장르 제목 스타일 추가 */
+        .genre-title {
+            font-family: 'Dongle', sans-serif;
+            font-size: 32px;
+            color: #45B191;
+            margin: 20px 0 10px 30px;
+            text-align: left;
+            width: 100%;
+            max-width: 600px;
+        }
 
         .game-icon { 
             width: 50%; 
@@ -234,38 +245,45 @@
         </header>
 
         <main class="game-section">
-            <div class="village-map">
-                <div class="game-entry" onclick="openModal('bounce-ball')">
-                    <div class="game-card">
-                        <div class="game-badge">HOT</div>
-                        <img src="bounce-ball-icon.png" alt="바운스볼" class="game-icon">
-                        <h2>데려다주기</h2>
-                        <p>교동이를 집으로!</p>
+            <center>
+                <h2 class="genre-title">🕹️ 아케이드</h2>
+                <div class="village-map">
+                    <div class="game-entry" onclick="openModal('bounce-ball')">
+                        <div class="game-card">
+                            <div class="game-badge">HOT</div>
+                            <img src="bounce-ball-icon.png" alt="바운스볼" class="game-icon">
+                            <h2>데려다주기</h2>
+                            <p>교동이를 집으로!</p>
+                        </div>
+                    </div>
+                    <div class="game-entry" onclick="openModal('get-sayuri')">
+                        <div class="game-card">
+                            <img src="get-sayuri.png" alt="사유리구하기" class="game-icon large-icon">
+                            <h2>사유리 구하기</h2>
+                            <p>사유리를 받아줘!</p>
+                        </div>
                     </div>
                 </div>
-                <div class="game-entry" onclick="openModal('get-sayuri')">
-                    <div class="game-card">
-                        <img src="get-sayuri.png" alt="사유리구하기" class="game-icon large-icon">
-                        <h2>사유리 구하기</h2>
-                        <p>사유리를 받아줘!</p>
+
+                <h2 class="genre-title">🧩 퍼즐 </h2>
+                <div class="village-map">
+                    <div class="game-entry" onclick="location.href='./game/card-match/index.html'">
+                        <div class="game-card">
+                            <img src="card-match.png" alt="카드맞추기" class="game-icon">
+                            <h2>카드 맞추기</h2>
+                            <p>똑같은 카드 찾기!</p>
+                        </div>
+                    </div>
+                    <div class="game-entry" onclick="openModal('omok')">
+                        <div class="game-card">
+                            <div class="game-badge" style="background: #A0E7E5;">NEW</div>
+                            <img src="sanrio.png" alt="산리오 오목" class="game-icon">
+                            <h2>산리오 오목</h2>
+                            <p>친구와 함께해요!</p>
+                        </div>
                     </div>
                 </div>
-                <div class="game-entry" onclick="location.href='./game/card-match/index.html'">
-                    <div class="game-card">
-                        <img src="card-match.png" alt="카드맞추기" class="game-icon">
-                        <h2>카드 맞추기</h2>
-                        <p>똑같은 카드 찾기!</p>
-                    </div>
-                </div>
-                <div class="game-entry" onclick="openModal('omok')">
-                    <div class="game-card">
-                        <div class="game-badge" style="background: #A0E7E5;">NEW</div>
-                        <img src="sanrio.png" alt="산리오 오목" class="game-icon">
-                        <h2>산리오 오목</h2>
-                        <p>친구와 함께해요!</p>
-                    </div>
-                </div>
-            </div>
+            </center>
         </main>
 
         <footer class="main-footer">
